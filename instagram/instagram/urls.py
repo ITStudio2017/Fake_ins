@@ -15,7 +15,12 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
+import django.views.static
+from instagram.settings import BASE_DIR
+import os
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+
+    url(r'static/(?P<path>.*)', django.views.static.serve, {'document_root': os.path.join(BASE_DIR, 'static')}),
 ]
