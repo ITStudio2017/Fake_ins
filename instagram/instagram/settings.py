@@ -37,6 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    'ins_api',
 ]
 
 MIDDLEWARE = [
@@ -77,8 +79,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'instagram', #os.path.join(BASE_DIR, 'db.sqlite3'),
-        'USER': 'root',
-        'PASSWORD': 'password',
+        'USER': 'It_team',
+        'PASSWORD': '01edfDJoe78',
         'HOST': '127.0.0.1',
         'PORT': '3306',
     	
@@ -130,10 +132,11 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media').replace('\\', '/')     #设置静�
 
 MEDIA_URL = '/media/'
 
+
 EMAIL_USE_SSL = True
-EMAIL_HOST = 'smtp.163.com'  # 如果是 163 改成 smtp.163.com
+EMAIL_HOST = 'smtp.163.com'  
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'alex_noreply@163.com' # 帐号
-EMAIL_HOST_PASSWORD = 'IdOoN4KyWxpt'  # 密码
+EMAIL_HOST_USER = 'alex_noreply@163.com' 
+EMAIL_HOST_PASSWORD = 'IdOoN4KyWxpt'  
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
