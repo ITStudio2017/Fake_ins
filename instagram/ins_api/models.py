@@ -42,12 +42,24 @@ class PostsLink(models.Model):
 	user = models.ForeignKey(User,verbose_name="用户")
 	post = models.ForeignKey(Posts,verbose_name="动态")
 
-class FollowsLink(object):
+class FollowsLink(models.Model):
 	"""用于储存用户关注关联信息"""
-	From = models.ForeignKey(User,verbose_name="关注者")
-	To = models.ForeignKey(User,verbose_name="被关注者")
+	From = models.ForeignKey(User,related_name='from+',verbose_name="关注者")
+	To = models.ForeignKey(User,verbose_name="被关注者",related_name='to')
+
+class ApiList(models.Model):
+	appId = models.CharField(max_length=20,default="")
+	appKey = models.CharField(max_length=100,default="")
+	publicKey = models.CharField(max_length=160,default="")
+	privateKey = models.CharField(max_length=160,default="")
 		
+		
+class ApiApplicationer(models.Model):
+	email = models.EmailField()
+	name = models.CharField(max_length=10)
+	permission = models.BooleanField(default=False)
 	
+		
 		
 		
 
