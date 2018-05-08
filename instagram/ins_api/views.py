@@ -29,5 +29,4 @@ def apiApplication(request):
 											  'image_url':image_url})
 
 
-
 # Create your views here.

@@ -50,8 +50,8 @@ class FollowsLink(models.Model):
 class ApiList(models.Model):
 	appId = models.CharField(max_length=20,default="")
 	appKey = models.CharField(max_length=100,default="")
-	publicKey = models.CharField(max_length=160,default="")
-	privateKey = models.CharField(max_length=160,default="")
+	publicKey = models.CharField(max_length=180,default="")
+	privateKey = models.CharField(max_length=500,default="")
 		
 		
 class ApiApplicationer(models.Model):
