@@ -18,9 +18,10 @@ from django.contrib import admin
 import django.views.static
 from instagram.settings import BASE_DIR
 import os
+from ins_api.views import show_picture
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-
+    url(r'^media/(.+)/$', show_picture),
     url(r'static/(?P<path>.*)', django.views.static.serve, {'document_root': os.path.join(BASE_DIR, 'static')}),
 ]
