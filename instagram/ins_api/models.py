@@ -99,6 +99,19 @@ class PostsLink(models.Model):
         return self.user.__str__() + '收藏' + self.post.__str__()
 
 
+class ApiList(models.Model):
+    appId = models.CharField(max_length=20,default="")
+    appKey = models.CharField(max_length=100,default="")
+    publicKey = models.CharField(max_length=180,default="")
+    privateKey = models.CharField(max_length=500,default="")
+
+
+class ApiApplicationer(models.Model):
+    email = models.EmailField()
+    name = models.CharField(max_length=10)
+    permission = models.BooleanField(default=False)
+
+
 class FollowsLink(models.Model):
     """用于储存用户关注关联信息"""
     From = models.ForeignKey(User, verbose_name="关注者", on_delete=models.CASCADE, related_name='+')
