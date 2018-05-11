@@ -15,6 +15,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from django.contrib.auth.hashers import make_password,check_password
 from django.core.mail import EmailMessage
+from .models import UsersActive
+from django.contrib.auth import authenticate, login, logout
+from rest_framework.authtoken.models import Token
+from django.views.decorators.csrf import csrf_exempt
 
 
 
@@ -59,8 +63,7 @@ class UserDetail(APIView):
 		
 
 
-
-class UserApi(APIView):
+class UserRegister(APIView):
 	def post(self, request, format=None):
 		data = request.data
 		username = data['username']
@@ -83,9 +86,40 @@ class UserApi(APIView):
 				hashkey = CaptchaStore.generate_key()
 				captcha = CaptchaStore.objects.get(hashkey=hashkey)
 				code = captcha.challenge
+				UsersActive.objects.create(user=user,hashkey=hashkey,code=code,status=1)
 				sendemail = EmailMessage('验证码','您好，您的验证码是' + code,"alex_noreply@163.com",[email,])
 				sendemail.send()
 				return Response({'status':'验证码已发送'})
+
+
+
+class UserRegisterVerification(APIView):
+	def post(self, request, format=None):
+		try:
+			data = request.data
+			code = data['code']
+			hashkey = data['hashkey']
+			captcha = UsersActive.objects.get(hashkey=hashkey)
+			captcha1 = CaptchaStore.objects.get(hashkey=hashkey)
+			user = User.objects.get(username=captcha.user)
+			if (captcha1.response == code.lower()):
+				user.is_active = True
+				user.save()
+				captcha.delete()
+				captcha1.delete()
+				return Response({'status':'激活成功'})
+			return Response({'status':'验证码错误！'})
+		except:
+			return Response({'status':'未知错误'})
+
+
+class UserToken(APIView):
+	def post(self, request, format=None,):
+		return Response({'status':'登录成功！'})
+
+
+
+		
 
 
 def show_picture(request, url):

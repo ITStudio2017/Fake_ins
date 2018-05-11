@@ -64,6 +64,7 @@ class UsersActive(models.Model):
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
     status = models.PositiveIntegerField(choices=STATUS_CHOICES, default=2, verbose_name="状态")
     code = models.CharField(max_length=10, verbose_name="验证码", default="保存后自动生成验证码")
+    hashkey = models.CharField(max_length=100, verbose_name='哈希值',default="")
 
     class Meta:
         verbose_name = '验证码信息'

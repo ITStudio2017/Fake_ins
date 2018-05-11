@@ -18,23 +18,17 @@ from django.contrib import admin
 import django.views.static
 from instagram.settings import BASE_DIR
 import os
-<<<<<<< HEAD
+from users.models import User 
+from rest_framework import routers, serializers, viewsets
 from ins_api.views import show_picture
+
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^media/(.+)/$', show_picture),
-=======
-from users.models import User 
-from rest_framework import routers, serializers, viewsets
-
-
-urlpatterns = [
-    url(r'^admin/', admin.site.urls),
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^api/',include('ins_api.urls')),
     url(r'^captcha/', include('captcha.urls')),
 
->>>>>>> e0cbbc4f480601bf6eddd5e926d5f3dfe39b610c
     url(r'static/(?P<path>.*)', django.views.static.serve, {'document_root': os.path.join(BASE_DIR, 'static')}),
 ]
