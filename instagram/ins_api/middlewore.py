@@ -14,7 +14,6 @@ class TimeMiddleware(object):
 			response = self.get_response(request)
 			return response
 		else:
-			print(request.path[:9])
 			now = time.time()
 			try:
 				timestamp = float(request.GET['timestamp'])
