@@ -29,6 +29,7 @@ urlpatterns = [
     url(r'^api-auth/', include('rest_framework.urls')),
     url(r'^api/',include('ins_api.urls')),
     url(r'^captcha/', include('captcha.urls')),
+    url(r'^users/',include('users.urls')),
 
     url(r'static/(?P<path>.*)', django.views.static.serve, {'document_root': os.path.join(BASE_DIR, 'static')}),
 ]

@@ -23,6 +23,8 @@ import hashlib
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
 import time
+from users.utils import EmailActivationTokenGenerator, send_activation_email
+from users.signals import user_activated, user_registered
 
 
 def apiApplication(request):
@@ -91,6 +93,15 @@ class UserDetail(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
+class PhotoList(APIView):
+	def get(self, request):
+		try:
+			postid = request.GET['postid']
+			photoList = Photos.objects.filter(post=postid).order_by('-time')
+			serializer = PhotoSerializer(photoList, many=True)
+			return Response(serializer.data)
+		except:
+			return Response({'status':'UnknownError'})
 
 
 		
@@ -103,7 +114,6 @@ class UserRegister(APIView):
 		username = data['username']
 		email = data['email']
 		password = data['password']
-		password2 = data['password2']
 		nickname = data['nickname']
 		try:
 			User.objects.get(username=username)
@@ -113,17 +123,22 @@ class UserRegister(APIView):
 				User.objects.get(email=email)
 				return Response({'status':'EmailError'})
 			except:
-				if password != password2:
-					return Response({'status':'PasswordError'})
 				password = make_password(password)
-				user = User.objects.create(username=username,email=email,password=password,nickname=nickname)
-				hashkey = CaptchaStore.generate_key()
-				captcha = CaptchaStore.objects.get(hashkey=hashkey)
-				code = captcha.challenge
-				UsersActive.objects.create(user=user,hashkey=hashkey,code=code,status=1)
-				sendemail = EmailMessage('验证码','您好，您的验证码是' + code,"alex_noreply@163.com",[email,])
-				sendemail.send()
-				return Response({'status':'Success','hashkey':hashkey})
+				try:
+					user = User.objects.create(username=username,email=email,password=password,nickname=nickname)
+					opts = {
+					'user': user,
+					'request': request,
+					'from_email': None,
+					'email_template': 'users/activation_email.html',
+					'subject_template': 'users/activation_email_subject.html',
+					'html_email_template': None,
+					}
+					send_activation_email(**opts)
+					user_registered.send(sender=user.__class__, request=request, user=user)
+					return Response({'status':'Success'})
+				except:
+					return Response({'status':'UnknownError'})
 
 
 class Accounts(APIView):
@@ -139,24 +154,24 @@ class Accounts(APIView):
 			return Response({'status':'UnknownError'})
 		
 
-class UserRegisterVerification(APIView):
-	def post(self, request, format=None):
-		try:
-			data = request.data
-			code = data['code']
-			hashkey = data['hashkey']
-			captcha = UsersActive.objects.get(hashkey=hashkey)
-			captcha1 = CaptchaStore.objects.get(hashkey=hashkey)
-			user = User.objects.get(username=captcha.user)
-			if (captcha1.response == code.lower()):
-				user.is_active = True
-				user.save()
-				captcha.delete()
-				captcha1.delete()
-				return Response({'status':'Success'})
-			return Response({'status':'Failure'})
-		except:
-			return Response({'status':'UnknownError'})
+# class UserRegisterVerification(APIView):
+# 	def post(self, request, format=None):
+# 		try:
+# 			data = request.data
+# 			code = data['code']
+# 			hashkey = data['hashkey']
+# 			captcha = UsersActive.objects.get(hashkey=hashkey)
+# 			captcha1 = CaptchaStore.objects.get(hashkey=hashkey)
+# 			user = User.objects.get(username=captcha.user)
+# 			if (captcha1.response == code.lower()):
+# 				user.is_active = True
+# 				user.save()
+# 				captcha.delete()
+# 				captcha1.delete()
+# 				return Response({'status':'Success'})
+# 			return Response({'status':'Failure'})
+# 		except:
+# 			return Response({'status':'UnknownError'})
 
 
 
@@ -175,16 +190,16 @@ class UserToken(APIView):
 				email = data['email']
 				user = User.objects.get(email=email)
 			except:
-				return Response({'status':'请输入有效信息'})
+				return Response({'status':'EmailError'})
 		else:
 			try:
 				username = data['username']
 				user = User.objects.get(username=username)
 			except:
-				return Response({'status':'请输入有效信息'})
+				return Response({'status':'UserNameError'})
 		password = data['password']
 		if not user.is_active:
-			return Response({'status':'用户未激活'})
+			return Response({'status':'NotActive'})
 		if user.check_password(password):
 			try:
 				token = Token.objects.get(user=user)
@@ -195,7 +210,7 @@ class UserToken(APIView):
 			serializer = UserSerializer(user)
 			return Response([{'status':'Success','Authorization':'Token '+ token.key} , serializer.data])
 		else:
-			return Response({'status':'密码错误'})
+			return Response({'status':'PasswordError'})
 
 class PostDetail(APIView):
 	"""22"""
@@ -249,13 +264,14 @@ class PostsAPI(generics.ListCreateAPIView):
 		except:
 			return Response({'status':'Failure'})
 
-	def delete(self, request, pk, format=None):
+	def delete(self, request, format=None):
 		"""23"""
 		try:
+			pk = request.GET['pk']
 			user = request.user
 			post = Posts.objects.get(pk=pk,user=user)
 			post.delete()
-			return Response({'status':'删除成功'})
+			return Response({'status':'Success'})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -369,25 +385,26 @@ class Comments(APIView):
 			return Response({'status':'Failure'})
 
 
-class Seach(APIView):
+class Search(APIView):
 	"""8"""
-	def post(self, request, type=None, format=None):
+	def post(self, request, format=None):
 		data = request.data
 		try:
-			if type == 'user':
+			searchType = data['searchType']
+			if searchType == 'user':
 				keyword = data['keyword']
-				user = User.object.filter(Q(email__contains=keyword) | Q(username__contains=keyword))
+				user = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)).order_by('-followed_num')
 				serializer = UserSerializer(user, many=True)
-			if type == 'post':
+			if searchType == 'post':
 				keyword = data['keyword']
-				postList = Posts.object.filter(introduction__contains=keyword)
+				postList = Posts.objects.filter(introduction__contains=keyword).order_by('-Pub_time')
 				serializer = PostSerializer(postList, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
 
 class FollowPost(APIView):
-	def post(self, request, format=None):
+	def get(self, request, format=None):
 		"""9"""
 		data = request.data
 		user = request.user
@@ -396,7 +413,7 @@ class FollowPost(APIView):
 			userList = []
 			for follow in followList:
 				userList.append(follow.To.id)
-			postList = Posts.objects.filter(user__in=userList)
+			postList = Posts.objects.filter(user__in=userList).order_by('-Pub_time')
 			serializer = PostSerializer(postList, many=True)
 			return Response(serializer.data)
 		except:
@@ -410,7 +427,7 @@ class LikeList(APIView):
 			postIDList = []
 			for like in likeList:
 				postIDList.append(like.post.id)
-			postList = Posts.objects.filter(id__in=postIDList)
+			postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
 			serializer = PostSerializer(pohotList, many=True)
 			return Response(serializer.data)
 		except:

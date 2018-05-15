@@ -7,16 +7,21 @@ urlpatterns = format_suffix_patterns([
 
 	url(r'user/detail/(?P<pk>[0-9]+)/$',views.UserDetail.as_view()),
 	url(r'user/register/$',views.UserRegister.as_view()),
-	url(r'user/register/activation/$',views.UserRegisterVerification.as_view()),
+	#url(r'user/register/activation/$',views.UserRegisterVerification.as_view()),
 	url(r'user/login/$',views.UserToken.as_view()),
 	url(r'user/checkout/$',views.Accounts.as_view()),
 	url(r'user/password/$',views.PasswordForget.as_view()),
 
 	url(r'post/brief/(?P<pk>[0-9]+)/$',views.ShortPost.as_view()),
 	url(r'home/post/$',views.PostList.as_view()),
+	url(r'photoList/$',views.PhotoList.as_view()),
 
 	url(r'dynamic/$', views.PostsAPI.as_view()),
 
+	url(r'search/$',views.Search.as_view()),
+
 	url(r'timestamp/$',views.Test.as_view()),
+
+	url(r'user/followed/$',views.FollowPost.as_view()),
 
 ])
