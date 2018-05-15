@@ -76,18 +76,18 @@ class UserDetail(APIView):
 		serializer = UserSerializer(user)
 		return Response(serializer.data)
 
-	def put(self, request, pk,format=None):
+	def put(self, request, format=None):
 		"""11"""
 		data = request.data
 		try:
-			user = User.objects.get(id=request.user)
+			user = User.objects.get(id=request.user.id)
 			user.profile_picture = data['profile_picture']
-			user.username = data['username']
+			user.username = data['username']			
 			user.nickname = data['nickname']
 			user.gender = data['gender']
 			user.birthday = data['birthday']
-			if User.objects.filter(username=username):
-				return Response({'status':'Failure'})
+			if User.objects.filter(username=user.username):
+				return Response({'status':'AccountError'})
 			user.save()
 			return Response({'status':'Success'})
 		except:
@@ -428,7 +428,7 @@ class LikeList(APIView):
 			for like in likeList:
 				postIDList.append(like.post.id)
 			postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
-			serializer = PostSerializer(pohotList, many=True)
+			serializer = PostSerializer(postList, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
