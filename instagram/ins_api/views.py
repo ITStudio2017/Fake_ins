@@ -20,6 +20,9 @@ import rsa
 from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
 from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink
 import hashlib 
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.generics import GenericAPIView
+import time
 
 
 def apiApplication(request):
@@ -207,7 +210,7 @@ class PostDetail(APIView):
 
 		
 
-class PostsAPI(APIView):
+class PostsAPI(GenericAPIView):
 	"""7"""
 	permission_classes = (IsAuthenticated,)
 	def get(self, request, format=None):
@@ -222,27 +225,25 @@ class PostsAPI(APIView):
 		return Response(serializer.data)
 
 	def post(self, request, format=None):
-		data = request.data
-		photo_num = int(data['photo_num'])
-		post = Posts.objects.create(user=request.user, introduction=data['introduction'])
-		for i in range(photo_num):
-			photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
-			photo.save()
-		post.save()
-		return Response({'status':'发布成功'})
-
-	def put(self, request,  pk, format=None):
-		"""7+"""
-		data = request.data
 		try:
-			post = Posts.objects.get(pk=pk)
-			pohotList = Photos.objects.filter(post=post)
-			pohotList.delete()
-			post.introduction = data['introduction']
+			data = request.data
 			photo_num = int(data['photo_num'])
+			post = Posts.objects.create(user=request.user, introduction=data['introduction'])
 			for i in range(photo_num):
 				photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
 				photo.save()
+			post.save()
+			return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
+
+	def put(self, request,format=None):
+		"""7+"""
+		data = request.data
+		try:
+			pk = request.data['pk']
+			post = Posts.objects.get(pk=pk)
+			post.introduction = data['introduction']
 			post.seve()
 			return Response({'status':'Success'})
 		except:
@@ -273,31 +274,38 @@ class UserPost(APIView):
 
 class PasswordForget(APIView):
 	"""5"""
-	def get(self, request, email, format=None):
+	def get(self, request,format=None):
+		try:
+			email = request.GET['email']
+		except:
+			return Response({'status':'UnknownError'})
 		try:
 			user = User.objects.get(email=email)
 		except:
-			return Response({'status':'用户不存在'})
+			return Response({'status':'NotExist'})
 		hashkey = CaptchaStore.generate_key()
 		captcha = CaptchaStore.objects.get(hashkey=hashkey)
 		code = captcha.challenge
 		UsersActive.objects.create(user=user,hashkey=hashkey,code=code,status=2)
 		sendemail = EmailMessage('验证码','您好，您的验证码是' + code,"alex_noreply@163.com",[email,])
 		sendemail.send()
-		return Response({'status':'验证码已发送','hashkey':hashkey})
+		return Response({'status':'Success','hashkey':hashkey})
 
 	def post(self, request, format=None):
 		data = request.data
-		captcha = data['captcha']
-		hashkey = data['hashkey']
-		password = data['password']
-		password2 = data['password2']
-		response = CaptchaStore.objects.get(hashkey=hashkey).response
-		if response == captcha and password == password2:
-			user.password = make_password(password)
-			return Response({'status':'Success'})
-		else:
-			return Response({'status':'Failure'})
+		try:
+			captcha = data['captcha']
+			hashkey = data['hashkey']
+			password = data['password']
+			password2 = data['password2']
+			response = CaptchaStore.objects.get(hashkey=hashkey).response
+			if response == captcha and password == password2:
+				user.password = make_password(password)
+				return Response({'status':'Success'})
+			else:
+				return Response({'status':'Failure'})
+		except:
+			return Response({'status':'UnknownError'})
 
 
 
@@ -305,8 +313,9 @@ class PasswordForget(APIView):
 class Comments(APIView):
 	"""24"""
 	permission_classes = (IsAuthenticated,)
-	def get(self, request,post, format=None):
+	def get(self, request, format=None):
 		try:
+			post = request.GET['post']
 			commentList = Comments.objects.filter(post=post)
 			serializer = CommentSerializer(commentList, many=True)
 			return Response(serializer.data)
@@ -503,9 +512,12 @@ class PublicKey(APIView):
 
 class Test(APIView):
 	def get(self, request, format=None):
-		user = request.user
-		serializer = UserSerializer(user)
-		return Response(serializer.data)
+		timestamp = time.time()
+		timestamp = str(timestamp)
+		return Response({'timestamp':timestamp})
+		# user = request.user
+		# serializer = UserSerializer(user)
+		# return Response(serializer.data)
 
 	def post(self, request, format=None):
 		# a = ""
