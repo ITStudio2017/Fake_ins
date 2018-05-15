@@ -208,7 +208,7 @@ class UserToken(APIView):
 				pass
 			token = Token.objects.create(user=user)
 			serializer = UserSerializer(user)
-			return Response([{'status':'Success','Authorization':'Token '+ token.key} , serializer.data])
+			return Response({'status':'Success','Authorization':'Token '+ token.key, "result":[serializer.data]})
 		else:
 			return Response({'status':'PasswordError'})
 
