@@ -10,7 +10,7 @@ class TimeMiddleware(object):
 		self.get_response = get_response
 
 	def __call__(self, request):
-		if request.path == "/api/Application/" or request.path[:9] == "/captcha/" or request.path[:7] == "/admin/" or request.path[:7] == "/media/" or request.path[:8] == "/static/":
+		if request.path == "/api/Application/" or request.path[:9] == "/captcha/" or request.path[:7] == "/admin/" or request.path[:7] == "/media/" or request.path[:8] == "/static/" or request.path == "/api/timestamp/":
 			response = self.get_response(request)
 			return response
 		else:
@@ -32,7 +32,7 @@ class ApiMiddleware(object):
 		self.get_response = get_response
 
 	def __call__(self, request):
-		if request.path == "/api/Application/" or request.path[:9] == "/captcha/" or request.path[:7] == "/admin/" or request.path[:7] == "/media/" or request.path[:8] == "/static/":
+		if request.path == "/api/Application/" or request.path[:9] == "/captcha/" or request.path[:7] == "/admin/" or request.path[:7] == "/media/" or request.path[:8] == "/static/" or request.path == "/api/timestamp/":
 			response = self.get_response(request)
 			return response
 		else:

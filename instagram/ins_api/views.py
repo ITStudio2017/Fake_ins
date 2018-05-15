@@ -21,7 +21,7 @@ from .serializers import UserSerializer, PostSerializer, PhotoSerializer, Commen
 from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink
 import hashlib 
 from rest_framework.pagination import PageNumberPagination
-from rest_framework.generics import GenericAPIView
+from rest_framework import generics, mixins
 import time
 
 
@@ -203,16 +203,16 @@ class PostDetail(APIView):
 		try:
 			post = Posts.objects.get(pk=pk)
 			serializer = PostSerializer(post)
-			photoList = Photos.objects.filter(post=post).order_by('')
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
 
 		
 
-class PostsAPI(GenericAPIView):
+class PostsAPI(generics.ListCreateAPIView):
 	"""7"""
 	permission_classes = (IsAuthenticated,)
+
 	def get(self, request, format=None):
 		user = request.user
 		userlist = [user.id]
@@ -259,6 +259,34 @@ class PostsAPI(GenericAPIView):
 		except:
 			return Response({'status':'UnknownError'})
 
+class PostList(mixins.ListModelMixin,
+			   mixins.CreateModelMixin,
+			   generics.GenericAPIView):
+	queryset = Posts.objects.all()
+	serializer_class = PostSerializer
+	permission_classes = (IsAuthenticated,)
+	pagination_class = PageNumberPagination
+	def get(self, request, *args, **kwargs):
+		return self.list(request, *args, **kwargs)
+
+	# def list(self, request):
+	# 	serializer = PostSerializer(self.get_queryset(),many=True)
+	# 	return Response(serializer.data)
+
+	
+	def get_queryset(self):
+		user = self.request.user
+		userlist = [user.id]
+		likeList = FollowsLink.objects.filter(From = user)
+		for like in likeList:
+			userlist.append(like.To.id)
+		userlist = list(set(userlist))
+		postList = Posts.objects.filter(user__in=userlist).order_by('-Pub_time')
+		return postList
+
+
+	
+		
 
 class UserPost(APIView):
 	permission_classes = (IsAuthenticated,)

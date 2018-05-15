@@ -13,6 +13,7 @@ urlpatterns = format_suffix_patterns([
 	url(r'user/password/$',views.PasswordForget.as_view()),
 
 	url(r'post/brief/(?P<pk>[0-9]+)/$',views.ShortPost.as_view()),
+	url(r'home/post/$',views.PostList.as_view()),
 
 	url(r'dynamic/$', views.PostsAPI.as_view()),
 
