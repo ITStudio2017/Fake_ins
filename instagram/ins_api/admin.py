@@ -16,30 +16,25 @@ def sendEmail(modeladmin, request, queryset):
 		for i in range(16):
 			sa.append(random.choice(seed))
 
-		appID = apper.email[:4]
+		appID = apper.email[:4] + "_"
 		appID +=  ''.join(sa)
 		sa = []
-		for i in range(8):
+		for i in range(7):
 			sa.append(random.choice(seed))
 
 		appKey = ''.join(sa)
 		appKey = make_password(appKey)[20:80]
-		(pubkey, privkey) = rsa.newkeys(1024)
-
-		fd = open('key.txt', 'w')
+		fd = open('Ins_API.txt', 'w')
 		fd.write("AppID: " + appID +'\n')
 		fd.write("AppKey: " + appKey+ '\n')
-		fd.write("PublicKey: " + str(pubkey))
 		fd.close
-		with open('static/'+ appID + '.pem','w',) as f:
-			f.write(pubkey.save_pkcs1().decode())
-		#ApiList.objects.create(appId=appID,appKey=appKey,publicKey=str(pubkey),privateKey=str(privkey))
-		#email = EmailMessage("接口申请成功","请注意查收附件。", "alex_noreply@163.com", [apper.email])
-		#email.content_subtype = "html"
-		#fd = open('key.txt', 'r')
-		#email.attach('key.txt', fd.read(), 'text/plain')
-		#email.send()
-		#os.remove('key.txt')
+		ApiList.objects.create(appId=appID,appKey=appKey)
+		email = EmailMessage("接口申请成功","请注意查收附件。", "alex_noreply@163.com", [apper.email])
+		email.content_subtype = "html"
+		fd = open('Ins_API.txt', 'r')
+		email.attach('Ins_API.txt', fd.read(), 'text/plain')
+		email.send()
+		os.remove('Ins_API.txt')
 
 
 

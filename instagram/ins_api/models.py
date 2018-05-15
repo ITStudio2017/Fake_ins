@@ -2,15 +2,23 @@ from django.db import models
 from users.models import User
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
+from users.storage import ImageStorage
 
 
 class Posts(models.Model):
     """动态"""
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
-    introduction = models.TextField(max_length=150, default="", verbose_name="动态描述")
+    introduction = models.CharField(max_length=150, default="", verbose_name="动态描述")
     Pub_time = models.DateTimeField(auto_now_add=True, verbose_name="发表时间")
     likes_num = models.PositiveIntegerField(default=0, verbose_name="点赞数")
     com_num = models.PositiveIntegerField(default=0, verbose_name="评论数")
+    def likeNumIncrease(self):
+        self.likes_num += 1
+        self.save(update_fields=['likes_num'])
+
+    def likeNumDreacase(self):
+        self.likes_num -= 1
+        self.save(update_fields=['likes_num'])
 
     class Meta:
         verbose_name = '动态信息'
@@ -20,10 +28,12 @@ class Posts(models.Model):
         return self.user.__str__() + '的动态:' + str(self.user_id)
 
 
+
 class Photos(models.Model):
     """动态的图片"""
     post = models.ForeignKey(Posts, verbose_name="动态", on_delete=models.CASCADE)
-    photo = models.ImageField(max_length=100, verbose_name="图片", upload_to='photos/')
+    photo = models.ImageField(max_length=100, verbose_name="图片", upload_to='photos/',storage=ImageStorage())
+    time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
 
     def image_tag(self):
         return mark_safe("<img src='%s' width='100px' />" % self.photo.url)
@@ -78,6 +88,7 @@ class LikesLink(models.Model):
     """点赞关联信息"""
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, verbose_name="动态", on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
 
     class Meta:
         verbose_name = '点赞关联信息'
@@ -91,6 +102,7 @@ class PostsLink(models.Model):
     """收藏关联信息"""
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, verbose_name="动态", on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
 
     class Meta:
         verbose_name = '收藏关联信息'
@@ -101,10 +113,11 @@ class PostsLink(models.Model):
 
 
 class ApiList(models.Model):
-    appId = models.CharField(max_length=20,default="")
+    appId = models.CharField(max_length=25,default="")
     appKey = models.CharField(max_length=100,default="")
     publicKey = models.CharField(max_length=180,default="")
     privateKey = models.CharField(max_length=500,default="")
+    time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
 
 
 class ApiApplicationer(models.Model):
@@ -117,6 +130,7 @@ class FollowsLink(models.Model):
     """用于储存用户关注关联信息"""
     From = models.ForeignKey(User, verbose_name="关注者", on_delete=models.CASCADE, related_name='+')
     To = models.ForeignKey(User, verbose_name="被关注者", on_delete=models.CASCADE)
+    time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
 
     class Meta:
         verbose_name = '用户关注关联信息'
@@ -124,3 +138,10 @@ class FollowsLink(models.Model):
 
     def __str__(self):
         return self.From.__str__() + '关注' + self.To.__str__()
+
+class Keys(models.Model):
+    publicKey = models.CharField(max_length=250)
+    privateKey = models.CharField(max_length=900)
+    time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
+    
+        
