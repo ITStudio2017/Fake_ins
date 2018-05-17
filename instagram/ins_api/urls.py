@@ -22,6 +22,8 @@ urlpatterns = format_suffix_patterns([
 
 	url(r'dynamic/$', views.PostsAPI.as_view()),
 
+	url(r'post/comments/$',views.CommentsAPI.as_view()),
+
 	url(r'search/$',views.Search.as_view()),
 
 	url(r'timestamp/$',views.Test.as_view()),
@@ -31,5 +33,8 @@ urlpatterns = format_suffix_patterns([
 	url(r'user/lookme/$',views.ToPerson.as_view()),
 	url(r'user/followed/$',views.FollowPost.as_view()),
 	url(r'user/friendmessage/$',views.FollowMessage.as_view()),
+	url(r'user/followyou/$',views.Follow.as_view()),
+
+	url(r'user/posts/$',views.UserPost.as_view()),
 
 ])

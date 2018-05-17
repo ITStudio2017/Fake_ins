@@ -18,7 +18,7 @@ from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 import rsa
 from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
-from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink
+from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink, Comments
 import hashlib 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
@@ -57,7 +57,7 @@ class ShortPost(APIView):
 		photoList = Photos.objects.filter(post=pk).order_by('-time')
 		post = Posts.objects.get(pk=pk)
 		user = User.objects.get(id=post.user.id)
-		briefPost = BriefPost(username=user.username,introduction=post.introduction, Pub_time=post.Pub_time, photo=photoList[0].photo)
+		briefPost = BriefPost(username=user.username,introduction=post.introduction, Pub_time=post.Pub_time, likes_num=post.likes_num, com_num=post.com_num, profile_picture=user.profile_picture)
 		serializer = BriefPostSerializer(briefPost)
 		return Response(serializer.data)
 
@@ -98,8 +98,9 @@ class PhotoList(APIView):
 		try:
 			postid = request.GET['postid']
 			photoList = Photos.objects.filter(post=postid).order_by('-time')
+			photo_num = len(photoList)
 			serializer = PhotoSerializer(photoList, many=True)
-			return Response(serializer.data)
+			return Response({'photo_num':photo_num,'result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -154,28 +155,6 @@ class Accounts(APIView):
 			return Response({'status':'UnknownError'})
 		
 
-# class UserRegisterVerification(APIView):
-# 	def post(self, request, format=None):
-# 		try:
-# 			data = request.data
-# 			code = data['code']
-# 			hashkey = data['hashkey']
-# 			captcha = UsersActive.objects.get(hashkey=hashkey)
-# 			captcha1 = CaptchaStore.objects.get(hashkey=hashkey)
-# 			user = User.objects.get(username=captcha.user)
-# 			if (captcha1.response == code.lower()):
-# 				user.is_active = True
-# 				user.save()
-# 				captcha.delete()
-# 				captcha1.delete()
-# 				return Response({'status':'Success'})
-# 			return Response({'status':'Failure'})
-# 		except:
-# 			return Response({'status':'UnknownError'})
-
-
-
-
 
 class UserToken(APIView):
 	"""1"""
@@ -229,28 +208,34 @@ class PostsAPI(generics.ListCreateAPIView):
 	permission_classes = (IsAuthenticated,)
 
 	def get(self, request, format=None):
-		user = request.user
-		userlist = [user.id]
-		likeList = FollowsLink.objects.filter(From = user)
-		for like in likeList:
-			userlist.append(like.To.id)
-		userlist = list(set(userlist))
-		postList = Posts.objects.filter(user__in=userlist).order_by('-Pub_time')
-		serializer = PostSerializer(postList, many=True)
-		return Response(serializer.data)
-
-	def post(self, request, format=None):
 		try:
-			data = request.data
-			photo_num = int(data['photo_num'])
-			post = Posts.objects.create(user=request.user, introduction=data['introduction'],photo_0=data['photo_0'])
-			for i in range(photo_num):
-				photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
-				photo.save()
-			post.save()
-			return Response({'status':'Success'})
+			user = request.user
+			userlist = [user.id]
+			likeList = FollowsLink.objects.filter(From = user)
+			for like in likeList:
+				userlist.append(like.To.id)
+			userlist = list(set(userlist))
+			postList = Posts.objects.filter(user__in=userlist).order_by('-Pub_time')
+			postIDList = []
+			for post in postList:
+				postIDList.append(post.id)
+			return Response({'status':'Success','result':postIDList})
 		except:
 			return Response({'status':'UnknownError'})
+
+	def post(self, request, format=None):
+		data = request.data
+		photo_num = int(data['photo_num'])
+		try:
+			introduction = data['introduction']
+		except:
+			introduction = ""
+		post = Posts.objects.create(user=request.user, introduction=introduction,photo_0=data['photo_0'])
+		for i in range(photo_num):
+			photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
+			photo.save()
+		post.save()			
+		return Response({'status':'Success'})
 
 	def put(self, request,format=None):
 		"""7+"""
@@ -285,9 +270,6 @@ class PostList(mixins.ListModelMixin,
 	def get(self, request, *args, **kwargs):
 		return self.list(request, *args, **kwargs)
 
-	# def list(self, request):
-	# 	serializer = PostSerializer(self.get_queryset(),many=True)
-	# 	return Response(serializer.data)
 
 	
 	def get_queryset(self):
@@ -306,10 +288,10 @@ class PostList(mixins.ListModelMixin,
 
 class UserPost(APIView):
 	permission_classes = (IsAuthenticated,)
-	def get(self, request, pk, format=None):
+	def get(self, request, format=None):
 		try:
-			postList = Posts.objects.filter(user=pk)
-			serializer = PostSerializer(pohotList, many=True)
+			postList = Posts.objects.filter(user=request.user).order_by('-Pub_time')
+			serializer = PostSerializer(postList, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
@@ -354,35 +336,40 @@ class PasswordForget(APIView):
 
 
 
-class Comments(APIView):
+class CommentsAPI(APIView):
 	"""24"""
 	permission_classes = (IsAuthenticated,)
 	def get(self, request, format=None):
 		try:
-			post = request.GET['post']
-			commentList = Comments.objects.filter(post=post)
+			post = request.GET['post_id']
+			commentList = Comments.objects.filter(post=post).order_by('-Pub_time')
 			serializer = CommentSerializer(commentList, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
 
-	def post(self, request,post, format=None):
+	def post(self, request,format=None):
 		data = request.data
-		try:
-			comment = Comments.objects.create(user=request.user, post=post, content=data['content'])
-			comment.save()
-			return Response({'status':'Success'})
-		except:
-			return Response({'status':'Failure'})
+		post = Posts.objects.get(id=data['post_id'])
+		comment = Comments.objects.create(user=request.user, post=post, content=data['content'])
+		comment.save()
+		post.comNumIncrease()
+		return Response({'status':'Success'})
+		# except:
+		# 	return Response({'status':'UnknownError'})
 
-	def delete(self, request, post=None, format=None):
-		data = request.data
+	def delete(self, request, format=None):
 		try:
-			comment = Comments.objects.get(post=post, user=request.user)
-			comment.delete()
-			return Response({'status':'Success'})
-		except:
+			data = request.data
+			comment = Comments.objects.get(id=data['comment_id'])
+			if comment.user == request.user:
+				post = Posts.objects.get(id=comment.post.id)
+				comment.delete()
+				post.comNumDrease()
+				return Response({'status':'Success'})
 			return Response({'status':'Failure'})
+		except:
+			return Response({'status':'UnknownError'})
 
 
 class Search(APIView):
@@ -433,7 +420,41 @@ class LikeList(APIView):
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
-		
+
+	def post(self, request, format=None):
+		"""20"""
+		try:
+			data = request.data
+			pk = data['pk']
+			post = Posts.objects.get(pk=pk)
+			if LikesLink.objects.filter(post=post,user=request.user):
+				like = LikesLink.objects.filter(post=post,user=request.user)
+				like.delete()
+				post.likeNumDreacase()
+				return Response({'status':'Failure'})
+			post.likeNumIncrease()
+			post.save()
+			like = LikesLink.objects.create(post=post,user=request.user)
+			like.save()
+			return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
+
+	def delete(self, request, format=None):
+		try:
+			data = request.data
+			pk = data['pk']
+			post = Posts.objects.get(pk=pk)
+			if not LikesLink.objects.filter(post=post,user=request.user):
+				return Response({'status':'Failure'})
+			else:
+				LikesLink.objects.filter(post=post,user=request.user).delete()
+				post.likeNumDreacase()
+				post.save()
+				return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
+
 
 class PostsLinkApi(APIView):
 	"""收藏"""
@@ -538,11 +559,25 @@ class Follow(APIView):
 			if FollowsLink.objects.filter(From=user,To=To):
 				follow = FollowsLink.objects.filter(From=user,To=To)
 				follow.delete()
-				return Response({'status':'Success'})
+				return Response({'status':'Failure'})
 			else:
 				follow = FollowsLink.objects.create(From=user, To=To)
 				follow.save()
 				return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
+
+	def delete(self, request, format=None):
+		user = request.user
+		try:
+			data = request.data
+			To = User.objects.get(pk=data['pk'])
+			if FollowsLink.objects.filter(From=user,To=To):
+				follow = FollowsLink.objects.filter(From=user,To=To)
+				follow.delete()
+				return Response({'status':'Success'})
+			else:
+				return Response({'status':'Failure'})
 		except:
 			return Response({'status':'UnknownError'})
 
