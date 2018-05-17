@@ -484,7 +484,7 @@ class FollowPerson(APIView):
 	def get(self, request, format=None):
 		user = request.user
 		try:
-			followList = FollowsLink.objects.filter(From=user)
+			followList = FollowsLink.objects.filter(From=user).order_by('-time')
 			ToList = []
 			for follow in followList:
 				ToList.append(follow.To.id)
@@ -497,15 +497,15 @@ class FollowPerson(APIView):
 		
 class ToPerson(APIView):
 	"""15"""
-	def post(self, request, format=None):
-		user = request.user
+	def get(self, request, format=None):
 		try:
+			user = request.user
 			followList = FollowsLink.objects.filter(To=user)
 			FromList = []
 			for follow in followList:
 				FromList.append(follow.From.id)
 			userList = User.objects.filter(id__in=FromList)
-			serializer = UserSerializer(userlist, many=True)
+			serializer = UserSerializer(userList, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
@@ -513,7 +513,7 @@ class ToPerson(APIView):
 		
 class FollowMessage(APIView):
 	"""17"""
-	def post(self, request, format=None):
+	def get(self, request, format=None):
 		try:
 			followList = FollowsLink.objects.filter(From=request.user)
 			ToList = []

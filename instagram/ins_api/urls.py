@@ -26,6 +26,10 @@ urlpatterns = format_suffix_patterns([
 
 	url(r'timestamp/$',views.Test.as_view()),
 
+
+	url(r'user/friends/$',views.FollowPerson.as_view()),
+	url(r'user/lookme/$',views.ToPerson.as_view()),
 	url(r'user/followed/$',views.FollowPost.as_view()),
+	url(r'user/friendmessage/$',views.FollowMessage.as_view()),
 
 ])
