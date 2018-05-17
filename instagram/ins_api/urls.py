@@ -9,7 +9,7 @@ urlpatterns = format_suffix_patterns([
 	url(r'user/detail/$',views.UserDetail.as_view()),
 	
 	url(r'user/register/$',views.UserRegister.as_view()),
-	#url(r'user/register/activation/$',views.UserRegisterVerification.as_view()),
+
 	url(r'user/login/$',views.UserToken.as_view()),
 	url(r'user/checkout/$',views.Accounts.as_view()),
 	url(r'user/password/$',views.PasswordForget.as_view()),
@@ -17,7 +17,8 @@ urlpatterns = format_suffix_patterns([
 	url(r'post/brief/(?P<pk>[0-9]+)/$',views.ShortPost.as_view()),
 	url(r'home/post/$',views.PostList.as_view()),
 	url(r'photoList/$',views.PhotoList.as_view()),
-	url(r'post/like/$',views.LikeList.as_view()),
+	url(r'post/like/$',views.PostsLinkApi.as_view()), #收藏
+	url(r'post/dianzan/$',views.LikeList.as_view()), #点赞(原谅我词穷了)
 
 	url(r'dynamic/$', views.PostsAPI.as_view()),
 

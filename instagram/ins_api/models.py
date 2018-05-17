@@ -11,6 +11,7 @@ class Posts(models.Model):
     introduction = models.CharField(max_length=150, default="", verbose_name="动态描述")
     Pub_time = models.DateTimeField(auto_now_add=True, verbose_name="发表时间")
     likes_num = models.PositiveIntegerField(default=0, verbose_name="点赞数")
+    photo_0 = models.ImageField(max_length=100,verbose_name="图片", upload_to='photos/',storage=ImageStorage(),default="")
     com_num = models.PositiveIntegerField(default=0, verbose_name="评论数")
     def likeNumIncrease(self):
         self.likes_num += 1
@@ -19,6 +20,14 @@ class Posts(models.Model):
     def likeNumDreacase(self):
         self.likes_num -= 1
         self.save(update_fields=['likes_num'])
+
+    def comNumIncrease(self):
+        self.com_num += 1
+        self.save(update_fields=['com_num'])
+
+    def comNumDrease(self):
+        self.com_num -= 1
+        self.save(update_fields=['com_num'])
 
     class Meta:
         verbose_name = '动态信息'

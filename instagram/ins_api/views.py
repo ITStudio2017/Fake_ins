@@ -18,7 +18,7 @@ from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 import rsa
 from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
-from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink
+from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink
 import hashlib 
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
@@ -243,7 +243,7 @@ class PostsAPI(generics.ListCreateAPIView):
 		try:
 			data = request.data
 			photo_num = int(data['photo_num'])
-			post = Posts.objects.create(user=request.user, introduction=data['introduction'])
+			post = Posts.objects.create(user=request.user, introduction=data['introduction'],photo_0=data['photo_0'])
 			for i in range(photo_num):
 				photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
 				photo.save()
@@ -259,7 +259,7 @@ class PostsAPI(generics.ListCreateAPIView):
 			pk = request.data['pk']
 			post = Posts.objects.get(pk=pk)
 			post.introduction = data['introduction']
-			post.seve()
+			post.save()
 			return Response({'status':'Success'})
 		except:
 			return Response({'status':'Failure'})
@@ -420,6 +420,7 @@ class FollowPost(APIView):
 			return Response({'status':'UnknownError'})
 
 class LikeList(APIView):
+	"""点赞列表"""
 	def get(self, request, format=None):
 		"""13"""
 		try:
@@ -434,39 +435,46 @@ class LikeList(APIView):
 			return Response({'status':'UnknownError'})
 		
 
-class Like(APIView):
+class PostsLinkApi(APIView):
+	"""收藏"""
 	def get(self, request, format=None):
 		"""12"""
-		user = request.user
 		try:
-			likeList = LikesLink.objects.filter(user=user)
+			user = request.user
+			likeList = PostsLink.objects.filter(user=user)
 			postList = []
 			for like in likeList:
-				postList.append(like.post)
-			posts = Posts.objects.filter(id__in=pohotList)
-			serializer = PostSerializer(posts)
+				postList.append(like.post.id)
+			posts = Posts.objects.filter(id__in=postList).order_by('-Pub_time')
+			serializer = PostSerializer(posts, many=True)
 			return Response(serializer.data)
 		except:
-			return Response({'status':'UnknownError'})
+			return Response({'status':"UnknownError"})
 
 	def post(self, request, format=None):
 		"""20,21"""
 		data = request.data
 		try:
-			if LikesLink.objects.filter(post=data['post_id'],user=request.user):
-				like = LikesLink.objects.filter(post=data['post_id'],user=request.user)
+			if PostsLink.objects.filter(post=data['post_id'],user=request.user):
+				like = PostsLink.objects.filter(post=data['post_id'],user=request.user)
 				like.delete()
-				post = Posts.objects.get(id=data['post_id'])
-				post.likeNumDreacase()
-				post.save()
 			else:
 				post_id = data['post_id']
-				like = LikesLink.objects.create(post=post_id,user=request.user)
+				like = PostsLink.objects.create(post=post_id,user=request.user)
 				like.save()
-				post = Posts.objects.get(id=data['post_id'])
-				post.likeNumIncrease()
 		except:
 			return Response({'status':'UnknownError'})
+
+	def delete(self, request, format=None):
+		data = request.data
+		try:
+			linkid = data['id']
+			like = PostsLink.objects.filter(id=linkid,user=request.user)
+			like.delete()
+			return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
+
 
 
 
