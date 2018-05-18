@@ -476,13 +476,16 @@ class PostsLinkApi(APIView):
 		"""20,21"""
 		data = request.data
 		try:
-			if PostsLink.objects.filter(post=data['post_id'],user=request.user):
+			post_id = data['post_id']
+			post = Posts.objects.get(id=post_id)
+			if PostsLink.objects.filter(post=post,user=request.user):
 				like = PostsLink.objects.filter(post=data['post_id'],user=request.user)
 				like.delete()
+				return Response({'status':'Failure'})
 			else:
-				post_id = data['post_id']
-				like = PostsLink.objects.create(post=post_id,user=request.user)
+				like = PostsLink.objects.create(post=post,user=request.user)
 				like.save()
+				return Response({'status':'Success'})
 		except:
 			return Response({'status':'UnknownError'})
 
