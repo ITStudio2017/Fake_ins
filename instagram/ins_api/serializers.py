@@ -14,13 +14,18 @@ class UserSerializer(serializers.ModelSerializer):
 
 class BriefPost(object):
 	"""docstring for ClassName"""
-	def __init__(self, username, introduction, Pub_time, likes_num, com_num, profile_picture):
+	def __init__(self, username, introduction, Pub_time, likes_num, com_num, profile_picture, photo_0, is_dianzan, is_shoucang, post_id, user_id):
 		self.username = username
 		self.profile_picture = profile_picture
 		self.introduction = introduction
 		self.Pub_time = Pub_time
 		self.likes_num = likes_num
 		self.com_num = com_num
+		self.photo_0 = photo_0
+		self.is_dianzan = is_dianzan
+		self.is_shoucang = is_shoucang
+		self.post_id = post_id
+		self.user_id = user_id
 		
 
 class BriefPostSerializer(serializers.Serializer):
@@ -30,6 +35,11 @@ class BriefPostSerializer(serializers.Serializer):
 	profile_picture = serializers.ImageField()
 	likes_num = serializers.IntegerField()
 	com_num = serializers.IntegerField()
+	photo_0 = serializers.ImageField()
+	is_shoucang = serializers.BooleanField()
+	is_dianzan = serializers.BooleanField()
+	post_id = serializers.IntegerField()
+	user_id = serializers.IntegerField()
 		
 
 class PostSerializer(serializers.ModelSerializer): 

@@ -35,6 +35,7 @@ urlpatterns = format_suffix_patterns([
 	url(r'user/friendmessage/$',views.FollowMessage.as_view()),
 	url(r'user/followyou/$',views.Follow.as_view()),
 
-	url(r'user/posts/$',views.UserPost.as_view()),
+	url(r'user/posts/(?P<pk>[0-9]+)/$',views.UserPost.as_view()),
+	url(r'user/checkfollow/(?P<pk>[0-9]+)/$',views.CheckFollow.as_view()),
 
 ])

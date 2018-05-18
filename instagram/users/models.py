@@ -100,6 +100,23 @@ class User(AbstractUser):
     following_num = models.IntegerField(verbose_name=u'关注人数', default=0)
     Reg_time = models.DateTimeField(verbose_name=u'注册时间', auto_now_add=True)
 
+    def followed_numIn(self):
+        self.followed_num += 1
+        self.save(update_fields=['followed_num'])
+
+    def followed_numDe(self):
+        self.followed_num -= 1
+        self.save(update_fields=['followed_num'])
+
+    def following_numIn(self):
+        self.following_num += 1
+        self.save(update_fields=['following_num'])
+
+    def following_numDe(self):
+        self.following_num -= 1
+        self.save(update_fields=['following_num'])
+
+
     def image_tag(self):
         return mark_safe("<img src='%s' width='100px' />" % self.profile_picture.url)
 
