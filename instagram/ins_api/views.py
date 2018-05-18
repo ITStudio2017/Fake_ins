@@ -81,13 +81,30 @@ class UserDetail(APIView):
 		data = request.data
 		try:
 			user = User.objects.get(id=request.user.id)
-			user.profile_picture = data['profile_picture']
-			user.username = data['username']			
-			user.nickname = data['nickname']
-			user.gender = data['gender']
-			user.birthday = data['birthday']
-			if User.objects.filter(username=user.username):
-				return Response({'status':'AccountError'})
+			try:
+				user.profile_picture = data['profile_picture']
+			except:
+				pass
+			try:
+				user.nickname = data['nickname']
+			except:
+				pass
+			try:
+				user.gender = data['gender']
+			except:
+				pass
+			try:
+				user.birthday = data['birthday']
+			except:
+				pass
+			try:
+				user.introduction = data['introduction']
+			except:
+				pass
+			try:
+				user.address = data['address']
+			except:
+				pass
 			user.save()
 			return Response({'status':'Success'})
 		except:

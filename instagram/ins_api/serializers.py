@@ -8,7 +8,8 @@ class UserSerializer(serializers.ModelSerializer):
 		fields = ('id', 'username',
 				  'nickname', 'gender', 'birthday',
 				  'following_num', 'followed_num',
-				  'following_num', 'profile_picture')
+				  'following_num', 'profile_picture',
+				  'introduction','address')
 			
 
 class BriefPost(object):
