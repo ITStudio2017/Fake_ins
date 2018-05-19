@@ -10,7 +10,29 @@ class UserSerializer(serializers.ModelSerializer):
 				  'following_num', 'followed_num',
 				  'following_num', 'profile_picture',
 				  'introduction','address')
-			
+
+class BriefUser(object):
+	"""docstring for BriefUser"""
+	def __init__(self, user_id, username, gender, birthday, following_num, followed_num, profile_picture, is_guanzhu):
+		self.user_id = user_id
+		self.username = username
+		self.gender = gender
+		self.birthday = birthday
+		self.following_num = following_num
+		self.followed_num = followed_num
+		self.profile_picture = profile_picture
+		self.is_guanzhu = is_guanzhu
+		
+class BriefUserSerializer(serializers.Serializer):
+	user_id = serializers.IntegerField()
+	username = serializers.CharField()
+	gender = serializers.IntegerField()
+	birthday = serializers.CharField()
+	following_num = serializers.IntegerField()
+	followed_num = serializers.IntegerField()
+	profile_picture = serializers.ImageField()
+	is_guanzhu = serializers.BooleanField()
+		
 
 class BriefPost(object):
 	"""docstring for ClassName"""

@@ -17,7 +17,8 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 import rsa
-from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
+from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer
+from .serializers import BriefUser, BriefUserSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
 from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink, Comments
 import hashlib 
 from rest_framework.pagination import PageNumberPagination
@@ -93,7 +94,8 @@ class UserDetail(APIView):
 		"""10"""
 		user = self.get_object(pk)
 		serializer = UserSerializer(user)
-		return Response(serializer.data)
+		post_num = len(Posts.objects.filter(user=user))
+		return Response({'result':serializer.data,'post_num':post_num})
 
 	def put(self, request, format=None):
 		"""11"""
@@ -263,8 +265,11 @@ class PostsAPI(generics.ListCreateAPIView):
 				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
 			else:
 				post_id = int(request.GET['post_id'])
-				now = postIDList.index(post_id)
-				postIDList = postIDList[now+1:now+6]
+				postIDList_2 = []
+				for postID in postIDList:
+					if postID < post_id:
+						postIDList_2.append(postID)
+				postIDList = postIDList_2[:5]
 				if not postIDList:
 					return Response({'status':'null'})
 				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
@@ -489,20 +494,87 @@ class CommentsAPI(APIView):
 class Search(APIView):
 	"""8"""
 	def post(self, request, format=None):
-		data = request.data
 		try:
+			data = request.data
+			page = int(request.GET['page'])
 			searchType = data['searchType']
 			if searchType == 'user':
 				keyword = data['keyword']
-				user = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)).order_by('-followed_num')
-				serializer = UserSerializer(user, many=True)
+				users = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)).order_by('-date_joined')
+				userIDList = []
+				userList = []
+				for user in users:
+					userIDList.append(user.id)
+				if page == 1:
+					userIDList = userIDList[:5]
+				else:
+					user_id = int(request.GET['user_id'])
+					now = userIDList.index(user_id)
+					userIDList = userIDList[now+1:now+6]
+				users = User.objects.filter(id__in=userIDList).order_by('-date_joined')
+				for user in users:
+					if FollowsLink.objects.filter(From=request.user,To=user):
+						is_guanzhu = True
+					else:
+						is_guanzhu = False
+					userList.append(BriefUser(user_id=user.id,
+											      username=user.username,
+												  gender=user.gender,
+												  birthday=user.birthday,
+												  following_num=user.following_num,
+												  followed_num=user.followed_num,
+												  profile_picture=user.profile_picture,
+												  is_guanzhu=is_guanzhu
+												  ))
+				serializer = BriefUserSerializer(userList, many=True)
+
+						
+
 			if searchType == 'post':
 				keyword = data['keyword']
 				postList = Posts.objects.filter(introduction__contains=keyword).order_by('-Pub_time')
-				serializer = PostSerializer(postList, many=True)
-			return Response(serializer.data)
+				postIDList = []
+				postIDList_2 = []
+				for post in postList:
+					postIDList.append(post.id)
+				if page == 1:
+					postIDList = postIDList[:5]
+				else:
+					post_id = int(request.GET['post_id'])
+					for postID in postIDList:
+						if postID < post_id:
+							postIDList_2.append(postID)
+					postIDList = postIDList_2[:5]
+				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
+				posts = []
+				for post in postList:
+					if LikesLink.objects.filter(user=request.user,post=post):
+						is_dianzan = True
+					else:
+						is_dianzan = False
+					if PostsLink.objects.filter(user=request.user,post=post):
+						is_shoucang = True
+					else:
+						is_shoucang = False
+					posts.append(BriefPost(username=post.user.username,
+										   profile_picture=post.user.profile_picture,
+										   introduction=post.introduction,
+										   Pub_time=post.Pub_time,
+										   likes_num=post.likes_num,
+										   com_num=post.com_num,
+										   photo_0=post.photo_0,
+										   is_shoucang=is_shoucang,
+										   is_dianzan=is_dianzan,
+										   post_id=post.id,
+										   user_id=post.user.id
+										   ))
+				serializer= BriefPostSerializer(posts, many=True)
+			if not serializer.data:
+				return Response({'status':'null'})
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
+		
 
 class FollowPost(APIView):
 	def get(self, request, format=None):
