@@ -530,8 +530,29 @@ class LikeList(APIView):
 			for like in likeList:
 				postIDList.append(like.post.id)
 			postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
-			serializer = PostSerializer(postList, many=True)
-			return Response(serializer.data)
+			posts = []
+			for post in postList:
+				if LikesLink.objects.filter(user=request.user,post=post):
+					is_dianzan = True
+				else:
+					is_dianzan = False
+				if PostsLink.objects.filter(user=request.user,post=post):
+					is_shoucang = True
+				else:
+					is_shoucang = False
+				posts.append(BriefPost(username=post.user.username,
+									   profile_picture=post.user.profile_picture,
+									   introduction=post.introduction,
+									   Pub_time=post.Pub_time,
+									   likes_num=post.likes_num,
+									   com_num=post.com_num,
+									   photo_0=post.photo_0,
+									   is_dianzan=is_dianzan,
+									   is_shoucang=is_shoucang,
+									   post_id=post.id,
+									   user_id=post.user.id))
+			serializer = BriefPostSerializer(posts,many=True)
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 
