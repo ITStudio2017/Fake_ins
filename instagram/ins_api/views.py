@@ -436,7 +436,7 @@ class PasswordForget(APIView):
 			response = captchastore.response
 			useractive = UsersActive.objects.get(hashkey=hashkey)
 			user = useractive.user
-			if response == captcha and password == password2:
+			if response.lower() == captcha.lower() and password == password2:
 				user.password = make_password(password)
 				user.save()
 				captchastore.delete()
