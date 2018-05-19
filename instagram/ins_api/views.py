@@ -426,15 +426,21 @@ class PasswordForget(APIView):
 		return Response({'status':'Success','hashkey':hashkey})
 
 	def post(self, request, format=None):
-		data = request.data
 		try:
+			data = request.data
 			captcha = data['captcha']
 			hashkey = data['hashkey']
 			password = data['password']
 			password2 = data['password2']
-			response = CaptchaStore.objects.get(hashkey=hashkey).response
+			captchastore = CaptchaStore.objects.get(hashkey=hashkey)
+			response = captchastore.response
+			useractive = UsersActive.objects.get(hashkey=hashkey)
+			user = useractive.user
 			if response == captcha and password == password2:
 				user.password = make_password(password)
+				user.save()
+				captchastore.delete()
+				useractive.delete()
 				return Response({'status':'Success'})
 			else:
 				return Response({'status':'Failure'})
