@@ -382,6 +382,44 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 
 
 
+### 修改密码接口
+
+>----
+>
+>描述：修改密码
+>
+>1、调用方式：post
+>
+>2、接口： /api/user/password/change/
+>
+>3、表单参数：
+>
+>| 字段名称    | 字段描述 | 类型   |
+>| ----------- | -------- | ------ |
+>| oldPassword | 旧密码   | string |
+>| password    | 新密码   | string |
+>| password2   | 确认密码 | string |
+>
+>4、返回参数：
+>
+>成功
+>
+>{
+>    "status": "Success"
+>}
+>
+>失败
+>
+>{
+>    "status": "Failure"
+>}
+>
+>未知错误
+>
+>{
+>    "status": "UnknownError"
+>}
+
 ### 发布动态接口
 
 > ---------
@@ -664,6 +702,18 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 2、接口 ：/api/search/
 >
+> 搜索用户：
+>
+> 请求第一页url参数：?page=1
+>
+> 请求非第一页url参数：?page=0&user_id=3 	(假设最后一个用户ID为3)
+>
+> 搜索动态：
+>
+> 请求第一页url参数：?page=1
+>
+> 请求非第一页url参数：?page=0&post_id=3 	(假设最后一个动态ID为3)
+>
 > > ##### 搜索用户
 > >
 > > ----
@@ -679,20 +729,39 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 > >
 > > 用户信息
 > >
+> > | 字段名称   | 字段描述 | 类型 |
+> > | ---------- | -------- | ---- |
+> > | is_guanzhu | 是否关注 | Bool |
+> >
+> > 
+> >
+> > 
+> >
 > > 例：
 > >
-> > [
-> >     {
-> >         "id": 2,
-> >         "username": "管理员",
-> >         "nickname": "无名用户",
-> >         "gender": 2,
-> >         "birthday": "2000-01-01",
-> >         "following_num": 0,
-> >         "followed_num": 0,
-> >         "profile_picture": "/media/profile_picture/default.jpg"
-> >     }
+> > {
+> >     "status": "Success",
+> >     "result": [
+> >         {
+> >             "user_id": 4,
+> >             "username": "123123",
+> >             "gender": 2,
+> >             "birthday": "2000-01-01",
+> >             "following_num": 0,
+> >             "followed_num": 0,
+> >             "profile_picture": "/media/profile_picture/default.jpg",
+> >             "is_guanzhu": true
+> >         }
+> >
 > > ]
+> >
+> > }
+> >
+> > 结果为空：
+> >
+> > {
+> >     "status": "null"
+> > }
 >
 > 
 >
@@ -711,24 +780,32 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 > >
 > >例：
 > >
-> >[
-> >    {
-> >        "id": 3,
-> >        "user": 2,
-> >        "introduction": "不错",
-> >        "Pub_time": "2018-05-15T19:42:03.672456+08:00",
-> >        "likes_num": 0,
-> >        "com_num": 0
-> >    },
-> >    {
-> >        "id": 2,
-> >        "user": 2,
-> >        "introduction": "不错",
-> >        "Pub_time": "2018-05-15T19:42:03.042706+08:00",
-> >        "likes_num": 0,
-> >        "com_num": 0
-> >    }
+> >{
+> >    "status": "Success",
+> >    "result": [
+> >        {
+> >            "username": "管理员",
+> >            "introduction": "不错",
+> >            "Pub_time": "2018-05-17T23:25:50.210277+08:00",
+> >            "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
+> >            "likes_num": 0,
+> >            "com_num": 0,
+> >            "photo_0": "/media/photos/20180517232550_52.jpg",
+> >            "is_shoucang": false,
+> >            "is_dianzan": false,
+> >            "post_id": 26,
+> >            "user_id": 2
+> >        }
+> >
 > >]
+> >
+> >}
+> >
+> >结果为空：
+>
+> {
+>     "status": "null"
+> }
 
 
 
@@ -797,21 +874,27 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 > | profile_picture | 图片地址       | string |
 > | introduction    | 个人介绍       | string |
 > | address         | 地址           | string |
+> | post_num        | 动态数         | int    |
 >
 > 例子：
 >
 > {
->     "id": 4,
->     "username": "123123",
->     "nickname": "无名用户",
->     "gender": 2,
->     "birthday": "2000-01-01",
->     "following_num": 0,
->     "followed_num": 0,
->     "profile_picture": "/media/profile_picture/default.jpg",
->     "introduction": "-",
->     "address": "-"
+>     "result": {
+>         "id": 2,
+>         "username": "管理员",
+>         "nickname": "啊啊大发",
+>         "gender": 1,
+>         "birthday": "2010-01-05",
+>         "following_num": 0,
+>         "followed_num": 0,
+>         "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
+>         "introduction": "啊啊大发的阿道夫",
+>         "address": "黄土高坡"
+>     },
+>     "post_num": 25
 > }
+
+
 
 ### 个人信息修改接口
 
@@ -1063,25 +1146,31 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数：
 >
-> | 字段名称 | 字段描述 | 类型 |
-> | -------- | -------- | ---- |
-> | id       | ID       | int  |
-> | user     | 用户ID   | int  |
-> | post     | 动态ID   | int  |
-> | time     | 点赞时间 |      |
+> | 字段名称     | 字段描述 | 类型   |
+> | ------------ | -------- | ------ |
+> | introduction | 动态描述 | string |
+> | user_id      | 用户ID   | int    |
+> | post_id      | 动态ID   | int    |
+> | time         | 点赞时间 | string |
+> | username     | 用户名   | string |
+> | photo_0      | 首图     | string |
 >
 > 例：
 >
-> [
->     {
->         "id": 2,
->         "user": 3,
->         "post": 1,
->         "time": "2018-05-15T19:35:41.330082+08:00"
->     }
-> ]
-
-
+> {
+>     "status": "Success",
+>     "result": [
+>         {
+>             "username": "xiaochen",
+>             "user_id": 3,
+>             "post_id": 1,
+>             "introduction": "不错",
+>             "photo_0": "/media/photos/20180515194200_76.JPG",
+>             "profile_picture": "/media/profile_picture/default.jpg",
+>             "time": "2018-05-15T19:35:41.330082+08:00"
+>         }
+>     ]
+> }
 
 ### 关注接口 
 
