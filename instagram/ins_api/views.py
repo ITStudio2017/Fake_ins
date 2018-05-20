@@ -871,6 +871,12 @@ class Test(APIView):
 			print("False")
 		return Response({'status':'OK'})
 
+	def delete(self, request, format=None):
+		try:
+			return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
+
 		
 
 
