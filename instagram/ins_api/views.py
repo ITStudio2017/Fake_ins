@@ -19,6 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 import rsa
 from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer
 from .serializers import BriefUser, BriefUserSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
+from .serializers import BriefLikesLink, BriefLikesLinkSerializer
 from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink, Comments
 import hashlib 
 from rest_framework.pagination import PageNumberPagination
@@ -750,9 +751,20 @@ class FollowMessage(APIView):
 			ToList = []
 			for follow in followList:
 				ToList.append(follow.To.id)
-			like = LikesLink.objects.filter(user__in=ToList).order_by('-time')
-			serializer = LikesLinkSerializer(like, many=True)
-			return Response(serializer.data)
+			likes = LikesLink.objects.filter(user__in=ToList).order_by('-time')
+			likeList = []
+			for like in likes:
+				likeList.append(BriefLikesLink(username=like.user.username,
+											   user_id=like.user.id,
+											   post_id=like.post.id,
+											   introduction=like.post.introduction,
+											   photo_0=like.post.photo_0,
+											   profile_picture=like.user.profile_picture,
+											   time=like.time
+											   ))
+
+			serializer = BriefLikesLinkSerializer(likeList,many=True)
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 

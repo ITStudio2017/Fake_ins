@@ -91,7 +91,27 @@ class LikesLinkSerializer(serializers.ModelSerializer):
 		fields = ('id','user','post','time')
 			
 						
+class BriefLikesLink(object):
+	"""docstring for BriefLikesLink"""
+	def __init__(self, username, user_id, post_id, introduction, photo_0, profile_picture, time):
+		self.username = username
+		self.user_id = user_id
+		self.post_id = post_id
+		self.introduction = introduction
+		self.photo_0 = photo_0
+		self.profile_picture = profile_picture
+		self.time = time
 		
+
+class BriefLikesLinkSerializer(serializers.Serializer):
+	username = serializers.CharField()
+	user_id = serializers.IntegerField()
+	post_id = serializers.IntegerField()
+	introduction = serializers.CharField()
+	photo_0 = serializers.ImageField()
+	profile_picture = serializers.ImageField()
+	time = serializers.DateTimeField()
+				
 	
 			
 		
