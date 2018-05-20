@@ -453,7 +453,22 @@ class PasswordForget(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
+class ChangePassword(APIView):
+	def post(self, request, format=None):
+		try:
+			data = request.data
+			oldPassword = data['oldPassword']
+			password = data['password']
+			password2 = data['password2']
+			if request.user.check_password(oldPassword) and password == password2:
+				request.user.password = make_password(password)
+				request.user.save()
+				return Response({'status':'Success'})
+			else:
+				return Response({'status':'Failure'})
+		except:
+			return Response({'status':'UnknownError'})
+		
 
 
 class CommentsAPI(APIView):
