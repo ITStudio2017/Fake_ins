@@ -21,13 +21,12 @@ from .serializers import UserSerializer, PostSerializer, PhotoSerializer, Commen
 from .serializers import BriefUser, BriefUserSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
 from .serializers import BriefLikesLink, BriefLikesLinkSerializer
 from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink, Comments
-import hashlib 
+import hashlib
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
 import time
 from users.utils import EmailActivationTokenGenerator, send_activation_email
 from users.signals import user_activated, user_registered
-
 
 def apiApplication(request):
 	if request.method == 'POST':
@@ -69,9 +68,9 @@ class ShortPost(APIView):
 			is_shoucang = False
 		briefPost = BriefPost(username=user.username,
 							  introduction=post.introduction,
-							  Pub_time=post.Pub_time, 
-							  likes_num=post.likes_num, 
-							  com_num=post.com_num, 
+							  Pub_time=post.Pub_time,
+							  likes_num=post.likes_num,
+							  com_num=post.com_num,
 							  profile_picture=user.profile_picture,
 							  photo_0=post.photo_0,
 							  is_dianzan=is_dianzan,
@@ -82,7 +81,6 @@ class ShortPost(APIView):
 		serializer = BriefPostSerializer(briefPost)
 		return Response(serializer.data)
 
-		
 class UserDetail(APIView):
 	permission_classes = (IsAuthenticated,)
 	def get_object(self, pk):
@@ -143,10 +141,6 @@ class PhotoList(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
-		
-
-
 class UserRegister(APIView):
 	"""2"""
 	def post(self, request, format=None):
@@ -180,7 +174,6 @@ class UserRegister(APIView):
 				except:
 					return Response({'status':'UnknownError'})
 
-
 class Accounts(APIView):
 	"""3"""
 	def post(self, request, format=None):
@@ -192,8 +185,6 @@ class Accounts(APIView):
 				return Response({'status':'NotExist'})
 		except:
 			return Response({'status':'UnknownError'})
-		
-
 
 class UserToken(APIView):
 	"""1"""
@@ -239,8 +230,6 @@ class PostDetail(APIView):
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
-
-		
 
 class PostsAPI(generics.ListCreateAPIView):
 	"""7"""
@@ -311,7 +300,7 @@ class PostsAPI(generics.ListCreateAPIView):
 		for i in range(photo_num):
 			photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
 			photo.save()
-		post.save()			
+		post.save()
 		return Response({'status':'Success'})
 
 	def put(self, request,format=None):
@@ -348,7 +337,7 @@ class PostList(mixins.ListModelMixin,
 		return self.list(request, *args, **kwargs)
 
 
-	
+
 	def get_queryset(self):
 		user = self.request.user
 		userlist = [user.id]
@@ -358,10 +347,6 @@ class PostList(mixins.ListModelMixin,
 		userlist = list(set(userlist))
 		postList = Posts.objects.filter(user__in=userlist).order_by('-Pub_time')
 		return postList
-
-
-	
-		
 
 class UserPost(APIView):
 	permission_classes = (IsAuthenticated,)
@@ -397,8 +382,6 @@ class UserPost(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
-
 class CheckFollow(APIView):
 	def get(self, request, pk, format=None):
 		try:
@@ -409,8 +392,6 @@ class CheckFollow(APIView):
 				return Response({'status':'No'})
 		except:
 			return Response({'status':'UnknownError'})
-		
-
 
 class PasswordForget(APIView):
 	"""5"""
@@ -468,8 +449,6 @@ class ChangePassword(APIView):
 				return Response({'status':'Failure'})
 		except:
 			return Response({'status':'UnknownError'})
-		
-
 
 class CommentsAPI(APIView):
 	"""24"""
@@ -505,7 +484,6 @@ class CommentsAPI(APIView):
 			return Response({'status':'Failure'})
 		except:
 			return Response({'status':'UnknownError'})
-
 
 class Search(APIView):
 	"""8"""
@@ -544,7 +522,7 @@ class Search(APIView):
 												  ))
 				serializer = BriefUserSerializer(userList, many=True)
 
-						
+
 
 			if searchType == 'post':
 				keyword = data['keyword']
@@ -590,7 +568,6 @@ class Search(APIView):
 			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
-		
 
 class FollowPost(APIView):
 	def get(self, request, format=None):
@@ -678,7 +655,6 @@ class LikeList(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
 class PostsLinkApi(APIView):
 	"""收藏"""
 	def get(self, request, format=None):
@@ -722,9 +698,6 @@ class PostsLinkApi(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
-
-
 class FollowPerson(APIView):
 	"""14"""
 	permission_classes = (IsAuthenticated,)
@@ -741,7 +714,6 @@ class FollowPerson(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-		
 class ToPerson(APIView):
 	"""15"""
 	def get(self, request, format=None):
@@ -757,7 +729,6 @@ class ToPerson(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-		
 class FollowMessage(APIView):
 	"""17"""
 	def get(self, request, format=None):
@@ -782,8 +753,6 @@ class FollowMessage(APIView):
 			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
-
-
 
 class Follow(APIView):
 	permission_classes = (IsAuthenticated,)
@@ -824,11 +793,6 @@ class Follow(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-		
-				
-
-
-
 class PublicKey(APIView):
 	def get(self, request, format=None):
 		(pubkey, privkey) = rsa.newkeys(1024)
@@ -837,9 +801,6 @@ class PublicKey(APIView):
 		key = Keys.objects.create(publicKey=pubkey,privateKey=privkey)
 		key.save()
 		return Response({'pubkey':pubkey})
-
-
-
 
 class Test(APIView):
 	def get(self, request, format=None):
@@ -876,15 +837,6 @@ class Test(APIView):
 			return Response({'status':'Success'})
 		except:
 			return Response({'status':'UnknownError'})
-
-		
-
-
-
-		
-
-
-
 
 def show_picture(request, url):
 	image_data = open('media/' + url, 'rb').read()
