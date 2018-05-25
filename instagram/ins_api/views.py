@@ -725,7 +725,8 @@ class ToPerson(APIView):
 	"""15"""
 	def get(self, request, format=None):
 		try:
-			user = request.user
+			user_id = request.GET['user_id']
+			user = User.objects.get(id=user_id)
 			followList = FollowsLink.objects.filter(To=user).order_by('-time')
 			FromList = []
 			for follow in followList:
