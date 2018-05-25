@@ -30,6 +30,7 @@ from users.utils import EmailActivationTokenGenerator, send_activation_email
 from users.signals import user_activated, user_registered
 from itertools import chain
 from operator import attrgetter
+from .serializers import Message, Message_1Serializer, Message_2Serializer, Message_3Serializer
 
 def apiApplication(request):
 	if request.method == 'POST':
@@ -841,24 +842,64 @@ class PublicKey(APIView):
 class MessageList(APIView):
 	"""16"""
 	def get(self, request, format=None):
-		user = request.user
-		posts = Posts.objects.filter(user=user)
-		postIDList = []
-		for post in posts:
-			postIDList.append(post.id)
-		follows = FollowsLink.objects.filter(To=user)
-		likes = LikesLink.objects.filter(post__in=postIDList)
-		comments = Comments.objects.filter(post__in=postIDList)
-		messages = sorted(chain(follows,likes,comments),key=attrgetter('time'),reverse=True)
+		try:
+			user = request.user
+			posts = Posts.objects.filter(user=user)
+			postIDList = []
+			for post in posts:
+				postIDList.append(post.id)
+			follows = FollowsLink.objects.filter(To=user)
+			likes = LikesLink.objects.filter(post__in=postIDList)
+			comments = Comments.objects.filter(post__in=postIDList)
+			messages = sorted(chain(follows,likes,comments),key=attrgetter('time'),reverse=True)
+			messageList = []
+			result = []
+			for message in messages:
+				if type(message) == FollowsLink:
+					if FollowsLink.objects.filter(From=request.user,To=message.From):
+						is_guanzhu = True
+					else:
+						is_guanzhu = False
+					message = Message(user_id=message.From.id,
+									  username=message.From.username,
+									  profile_picture=message.From.profile_picture,
+									  messageType=1,
+									  time=message.time,
+									  is_guanzhu=is_guanzhu,
+									  )
+					serializer = Message_1Serializer(message.kwargs)
+					result.append(serializer.data)
+				if type(message) == LikesLink:
+					message = Message(user_id=message.user.id,
+									  username=message.user.username,
+									  profile_picture=message.user.profile_picture,
+									  messageType=2,
+									  time=message.time,
+									  post_id=message.post.id,
+									  photo_0=message.post.photo_0,
+									  )
+					serializer = Message_2Serializer(message.kwargs)
+					result.append(serializer.data)
+				if type(message) == Comments:
+					message = Message(user_id=message.user.id,
+									  username=message.user.username,
+									  profile_picture=message.user.profile_picture,
+									  messageType=3,
+									  time=message.time,
+									  post_id=message.post.id,
+									  photo_0=message.post.photo_0,
+									  content=message.content
+									  )
+					serializer = Message_3Serializer(message.kwargs)
+					result.append(serializer.data)
+			return Response({'status':'Success','result':result})
+		except:
+			return Response({'status':'UnknownError'})
+
+
 		
 
-
-
-
-
-
-
-
+		
 class Test(APIView):
 	def get(self, request, format=None):
 		timestamp = time.time()

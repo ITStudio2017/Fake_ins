@@ -108,5 +108,35 @@ class BriefLikesLinkSerializer(serializers.Serializer):
 	profile_picture = serializers.ImageField()
 	time = serializers.DateTimeField()
 
+class Message(object):
+	def __init__(self, **kwargs):
+		super(Message, self).__init__()
+		self.kwargs = kwargs
 
-		
+class Message_1Serializer(serializers.Serializer):
+	"""docstring for Message_1Serializer"""
+	user_id = serializers.IntegerField()
+	username = serializers.CharField()
+	profile_picture = serializers.ImageField()
+	messageType = serializers.IntegerField()
+	time = serializers.DateTimeField()
+	is_guanzhu = serializers.BooleanField()
+
+class Message_2Serializer(serializers.Serializer):
+	user_id = serializers.IntegerField()
+	username = serializers.CharField()
+	profile_picture = serializers.ImageField()
+	messageType = serializers.IntegerField()
+	time = serializers.DateTimeField()
+	post_id = serializers.IntegerField()
+	photo_0 = serializers.ImageField()
+
+class Message_3Serializer(serializers.Serializer):
+	user_id = serializers.IntegerField()
+	username = serializers.CharField()
+	profile_picture = serializers.ImageField()
+	messageType = serializers.IntegerField()
+	time = serializers.DateTimeField()
+	post_id = serializers.IntegerField()
+	photo_0 = serializers.ImageField()
+	content = serializers.CharField()
