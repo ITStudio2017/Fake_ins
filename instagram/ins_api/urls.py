@@ -18,8 +18,8 @@ urlpatterns = format_suffix_patterns([
 	url(r'post/brief/(?P<pk>[0-9]+)/$',views.ShortPost.as_view()),
 	url(r'home/post/$',views.PostList.as_view()),
 	url(r'photoList/$',views.PhotoList.as_view()),
-	url(r'post/like/$',views.PostsLinkApi.as_view()), #收藏
-	url(r'post/dianzan/$',views.LikeList.as_view()), #点赞(原谅我词穷了)
+	url(r'post/like/$',views.PostsLinkApi.as_view()), 
+	url(r'post/dianzan/$',views.LikeList.as_view()), 
 
 	url(r'dynamic/$', views.PostsAPI.as_view()),
 
@@ -38,5 +38,6 @@ urlpatterns = format_suffix_patterns([
 
 	url(r'user/posts/(?P<pk>[0-9]+)/$',views.UserPost.as_view()),
 	url(r'user/checkfollow/(?P<pk>[0-9]+)/$',views.CheckFollow.as_view()),
+	url(r'user/messages/$',views.MessageList.as_view()),
 
 ])

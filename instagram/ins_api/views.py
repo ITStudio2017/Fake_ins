@@ -20,13 +20,16 @@ import rsa
 from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer
 from .serializers import BriefUser, BriefUserSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
 from .serializers import BriefLikesLink, BriefLikesLinkSerializer
-from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink, Comments
+from .models import LikesLink, PostsLink, Comments
+from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink
 import hashlib
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
 import time
 from users.utils import EmailActivationTokenGenerator, send_activation_email
 from users.signals import user_activated, user_registered
+from itertools import chain
+from operator import attrgetter
 
 def apiApplication(request):
 	if request.method == 'POST':
@@ -38,11 +41,11 @@ def apiApplication(request):
 		if (realCaptcha.response == captcha.lower()):
 			try:
 				user = ApiApplicationer.objects.get(email=email)
-				return render(request,'Application.html',{'message':'请不要重复申请。'})
+				return render(request,'Application.html',{'message':'Please Not Again'})
 			except:
 				ApiApplicationer.objects.create(email=email,name=name)
-				return render(request,'Application.html',{'message':'申请成功，请等待结果'})
-		return render(request,'Application.html',{'message':'验证码错误'})
+				return render(request,'Application.html',{'message':'Success'})
+		return render(request,'Application.html',{'message':'CaptchaError'})
 
 	hashkey = CaptchaStore.generate_key()
 	image_url = captcha_image_url(hashkey)
@@ -408,7 +411,7 @@ class PasswordForget(APIView):
 		captcha = CaptchaStore.objects.get(hashkey=hashkey)
 		code = captcha.challenge
 		UsersActive.objects.create(user=user,hashkey=hashkey,code=code,status=2)
-		sendemail = EmailMessage('验证码','您好，您的验证码是' + code,"alex_noreply@163.com",[email,])
+		sendemail = EmailMessage('楠岃瘉鐮�','鎮ㄥソ锛屾偍鐨勯獙璇佺爜鏄�' + code,"alex_noreply@163.com",[email,])
 		sendemail.send()
 		return Response({'status':'Success','hashkey':hashkey})
 
@@ -456,7 +459,7 @@ class CommentsAPI(APIView):
 	def get(self, request, format=None):
 		try:
 			post = request.GET['post_id']
-			commentList = Comments.objects.filter(post=post).order_by('-Pub_time')
+			commentList = Comments.objects.filter(post=post).order_by('-time')
 			serializer = CommentSerializer(commentList, many=True)
 			return Response(serializer.data)
 		except:
@@ -586,7 +589,7 @@ class FollowPost(APIView):
 			return Response({'status':'UnknownError'})
 
 class LikeList(APIView):
-	"""点赞列表"""
+	"""鐐硅禐鍒楄〃"""
 	def get(self, request, format=None):
 		"""13"""
 		try:
@@ -656,7 +659,7 @@ class LikeList(APIView):
 			return Response({'status':'UnknownError'})
 
 class PostsLinkApi(APIView):
-	"""收藏"""
+	"""鏀惰棌"""
 	def get(self, request, format=None):
 		"""12"""
 		try:
@@ -702,15 +705,19 @@ class FollowPerson(APIView):
 	"""14"""
 	permission_classes = (IsAuthenticated,)
 	def get(self, request, format=None):
-		user = request.user
 		try:
+			user_id = request.GET['user_id']
+			user = User.objects.get(id=user_id)
 			followList = FollowsLink.objects.filter(From=user).order_by('-time')
 			ToList = []
 			for follow in followList:
 				ToList.append(follow.To.id)
 			userList = User.objects.filter(id__in=ToList)
 			serializer = UserSerializer(userList, many=True)
-			return Response(serializer.data)
+			if serializer.data:
+				return Response({'status':'Success','result':serializer.data})
+			else:
+				return Response({'status':'null'})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -719,12 +726,26 @@ class ToPerson(APIView):
 	def get(self, request, format=None):
 		try:
 			user = request.user
-			followList = FollowsLink.objects.filter(To=user)
+			followList = FollowsLink.objects.filter(To=user).order_by('-time')
 			FromList = []
 			for follow in followList:
 				FromList.append(follow.From.id)
 			userList = User.objects.filter(id__in=FromList)
-			serializer = UserSerializer(userList, many=True)
+			users = []
+			for user_in in userList:
+				if FollowsLink.objects.filter(From=user,To=user_in):
+					is_guanzhu = True
+				else:
+					is_guanzhu = False
+				users.append(BriefUser(user_id=user_in.id,
+									   username=user_in.username,
+									   gender=user_in.gender,
+									   birthday=user_in.birthday,
+									   following_num=user_in.following_num,
+									   followed_num=user_in.followed_num,
+									   profile_picture=user_in.profile_picture,
+									   is_guanzhu=is_guanzhu))
+			serializer = BriefUserSerializer(users, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
@@ -801,6 +822,27 @@ class PublicKey(APIView):
 		key = Keys.objects.create(publicKey=pubkey,privateKey=privkey)
 		key.save()
 		return Response({'pubkey':pubkey})
+
+class MessageList(APIView):
+	"""16"""
+	def get(self, request, format=None):
+		user = request.user
+		posts = Posts.objects.filter(user=user)
+		postIDList = []
+		for post in posts:
+			postIDList.append(post.id)
+		follows = FollowsLink.objects.filter(To=user)
+		likes = LikesLink.objects.filter(post__in=postIDList)
+		comments = Comments.objects.filter(post__in=postIDList)
+		messages = sorted(chain(follows,likes,comments),key=attrgetter('time'),reverse=True)
+		
+
+
+
+
+
+
+
 
 class Test(APIView):
 	def get(self, request, format=None):

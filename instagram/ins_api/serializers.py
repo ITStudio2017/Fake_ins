@@ -22,7 +22,7 @@ class BriefUser(object):
 		self.followed_num = followed_num
 		self.profile_picture = profile_picture
 		self.is_guanzhu = is_guanzhu
-		
+
 class BriefUserSerializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	username = serializers.CharField()
@@ -32,7 +32,6 @@ class BriefUserSerializer(serializers.Serializer):
 	followed_num = serializers.IntegerField()
 	profile_picture = serializers.ImageField()
 	is_guanzhu = serializers.BooleanField()
-		
 
 class BriefPost(object):
 	"""docstring for ClassName"""
@@ -48,7 +47,6 @@ class BriefPost(object):
 		self.is_shoucang = is_shoucang
 		self.post_id = post_id
 		self.user_id = user_id
-		
 
 class BriefPostSerializer(serializers.Serializer):
 	username = serializers.CharField(max_length=15)
@@ -83,14 +81,12 @@ class CommentSerializer(serializers.ModelSerializer):
 	class Meta():
 		model = Comments
 		fields = ('id','user','post','content','Pub_time')
-		
 
 class LikesLinkSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = LikesLink
 		fields = ('id','user','post','time')
-			
-						
+
 class BriefLikesLink(object):
 	"""docstring for BriefLikesLink"""
 	def __init__(self, username, user_id, post_id, introduction, photo_0, profile_picture, time):
@@ -101,9 +97,9 @@ class BriefLikesLink(object):
 		self.photo_0 = photo_0
 		self.profile_picture = profile_picture
 		self.time = time
-		
 
 class BriefLikesLinkSerializer(serializers.Serializer):
+	"""点赞"""
 	username = serializers.CharField()
 	user_id = serializers.IntegerField()
 	post_id = serializers.IntegerField()
@@ -111,7 +107,5 @@ class BriefLikesLinkSerializer(serializers.Serializer):
 	photo_0 = serializers.ImageField()
 	profile_picture = serializers.ImageField()
 	time = serializers.DateTimeField()
-				
-	
-			
-		
+
+

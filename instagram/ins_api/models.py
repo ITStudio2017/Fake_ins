@@ -64,7 +64,7 @@ class Comments(models.Model):
     user = models.ForeignKey(User, verbose_name="用户", on_delete=models.CASCADE)
     post = models.ForeignKey(Posts, verbose_name="动态", on_delete=models.CASCADE)
     content = models.CharField(max_length=80, blank=False)
-    Pub_time = models.DateTimeField(auto_now_add=True, verbose_name="发表时间")
+    time = models.DateTimeField(auto_now_add=True, verbose_name="发表时间")
 
     class Meta:
         verbose_name = '评论信息'
@@ -152,5 +152,3 @@ class Keys(models.Model):
     publicKey = models.CharField(max_length=250)
     privateKey = models.CharField(max_length=900)
     time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
-    
-        
