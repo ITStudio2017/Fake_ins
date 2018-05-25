@@ -713,7 +713,21 @@ class FollowPerson(APIView):
 			for follow in followList:
 				ToList.append(follow.To.id)
 			userList = User.objects.filter(id__in=ToList)
-			serializer = UserSerializer(userList, many=True)
+			users = []
+			for user_in in userList:
+				if FollowsLink.objects.filter(From=request.user,To=user_in):
+					is_guanzhu = True
+				else:
+					is_guanzhu = False
+				users.append(BriefUser(user_id=user_in.id,
+									   username=user_in.username,
+									   gender=user_in.gender,
+									   birthday=user_in.birthday,
+									   following_num=user_in.following_num,
+									   followed_num=user_in.followed_num,
+									   profile_picture=user_in.profile_picture,
+									   is_guanzhu=is_guanzhu))
+			serializer = BriefUserSerializer(users, many=True)
 			if serializer.data:
 				return Response({'status':'Success','result':serializer.data})
 			else:
