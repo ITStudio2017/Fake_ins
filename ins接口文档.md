@@ -1062,46 +1062,61 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 
 
 
-### 我关注的人接口
+### 关注的人接口
 
 > ------
 >
-> 描述：显示我关注的人
+> 描述：显示关注的人
 >
 > 1、调用方式：get
 >
 > 2、接口：/api/user/friends/
 >
-> 3、请求参数：无
+> 3、请求参数：user_id
+>
+> 例： /api/user/friends/?user_id=2
 >
 > 4、返回参数：
 >
-> 例：
+> | 字段名称   | 字段描述             | 类型 |
+> | ---------- | -------------------- | ---- |
+> | is_guanzhu | 当前登录用户是否关注 | bool |
 >
-> [
->     {
->         "id": 1,
->         "username": "",
->         "nickname": "无名用户",
->         "gender": 2,
->         "birthday": "2000-01-01",
->         "following_num": 0,
->         "followed_num": 0,
->         "profile_picture": "/media/profile_picture/default.jpg"
->     },
->     {
->         "id": 2,
->         "username": "管理员",
->         "nickname": "aaa",
->         "gender": 1,
->         "birthday": "2011-01-20",
->         "following_num": 0,
->         "followed_num": 0,
->         "profile_picture": "/media/profile_picture/0723_2_8sik7oB.JPG"
->     }
-> ]
-
-
+> 
+>
+> 例（结果不为空）：
+>
+> {
+>     "status": "Success",
+>     "result": [
+>         {
+>             "user_id": 1,
+>             "username": "",
+>             "gender": 2,
+>             "birthday": "2000-01-01",
+>             "following_num": 0,
+>             "followed_num": 0,
+>             "profile_picture": "/media/profile_picture/default.jpg",
+>             "is_guanzhu": true
+>         },
+>         {
+>             "user_id": 3,
+>             "username": "xiaochen",
+>             "gender": 2,
+>             "birthday": "2000-01-01",
+>             "following_num": 0,
+>             "followed_num": 0,
+>             "profile_picture": "/media/profile_picture/default.jpg",
+>             "is_guanzhu": true
+>         }
+>     ]
+> }
+>
+> （结果为空）：
+>
+> {
+>     "status": "null"
+> }
 
 ### 关注我的人 接口
 
@@ -1113,22 +1128,30 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 2、接口：/api/user/lookme/
 >
-> 3、请求参数：无
+> 3、请求参数：user_id
+>
+> 例：/api/user/lookme/?user_id=2
 >
 > 4、返回参数：用户信息，详细信息查看上文
 >
 > 例：
 >
+> | 字段名称   | 字段描述 | 类型 |
+> | ---------- | -------- | ---- |
+> | is_guanzhu | 是否关注 | bool |
+>
+> 
+>
 > [
 >     {
->         "id": 2,
->         "username": "管理员",
->         "nickname": "aaa",
->         "gender": 1,
->         "birthday": "2011-01-20",
+>         "user_id": 3,
+>         "username": "xiaochen",
+>         "gender": 2,
+>         "birthday": "2000-01-01",
 >         "following_num": 0,
 >         "followed_num": 0,
->         "profile_picture": "/media/profile_picture/0723_2_8sik7oB.JPG"
+>         "profile_picture": "/media/profile_picture/default.jpg",
+>         "is_guanzhu": true
 >     }
 > ]
 
@@ -1596,3 +1619,94 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >     }
 >
 > ]
+
+### 消息列表接口
+
+>----
+>
+>描述：获取最近的消息
+>
+>1、调用方式：get
+>
+>2、接口：/api/user/messages/
+>
+>3、请求参数：无
+>
+>4、返回参数：
+>
+>>### 关注
+>>
+>>消息类型:messageType=1
+>>
+>>| 字段名称        | 字段描述         | 类型   |
+>>| --------------- | ---------------- | ------ |
+>>| user_id         | 关注人ID         | int    |
+>>| username        | 关注人用户名     | string |
+>>| profile_picture | 关注人头像       | string |
+>>| messageType     | 消息类型         | int    |
+>>| time            | 时间             | string |
+>>| is_guanzhu      | 当前用户是否关注 | bool   |
+>
+>> ### 点赞
+>>
+>> 消息类型:messageType=2
+>>
+>> | 字段名称        | 字段描述 | 类型   |
+>> | --------------- | -------- | ------ |
+>> | user_id         | 同上     | 同上   |
+>> | username        | 同上     | 同上   |
+>> | profile_picture | 同上     | 同上   |
+>> | messageType     | 同上     | 同上   |
+>> | time            | 同上     | 同上   |
+>> | post_id         | 动态ID   | int    |
+>> | photo_0         | 动态首图 | string |
+>
+>> ### 评论
+>>
+>> 消息类型:messageType=3
+>>
+>> | 字段名称        | 字段描述 | 类型   |
+>> | --------------- | -------- | ------ |
+>> | user_id         | 同上     | 同上   |
+>> | username        | 同上     | 同上   |
+>> | profile_picture | 同上     | 同上   |
+>> | messageType     | 同上     | 同上   |
+>> | time            | 同上     | 同上   |
+>> | post_id         | 同上     | 同上   |
+>> | photo_0         | 同上     | 同上   |
+>> | content         | 评论内容 | string |
+>
+>例：
+>
+>{
+>    "status": "Success",
+>    "result": [
+>        {
+>            "user_id": 2,
+>            "username": "管理员",
+>            "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
+>            "messageType": 3,
+>            "time": "2018-05-25T00:36:53.426185+08:00",
+>            "post_id": 4,
+>            "photo_0": "/media/photos/20180517195857_68.jpg",
+>            "content": "112"
+>        },
+>        {
+>            "user_id": 2,
+>            "username": "管理员",
+>            "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
+>            "messageType": 2,
+>            "time": "2018-05-15T19:35:41.330082+08:00",
+>            "post_id": 1,
+>            "photo_0": "/media/photos/20180515194200_76.JPG"
+>        },
+>        {
+>            "user_id": 3,
+>            "username": "xiaochen",
+>            "profile_picture": "/media/profile_picture/default.jpg",
+>            "messageType": 1,
+>            "time": "2018-05-15T11:54:52.280891+08:00",
+>            "is_guanzhu": true
+>        }
+>    ]
+>}
