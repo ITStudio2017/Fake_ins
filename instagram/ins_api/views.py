@@ -346,7 +346,7 @@ class PostList(mixins.ListModelMixin,
 	def get_queryset(self):
 		user = self.request.user
 		userlist = [user.id]
-		likeList = FollowsLink.objects.filter(From = user)
+		likeList = FollowsLink.objects.filter(From=user)
 		for like in likeList:
 			userlist.append(like.To.id)
 		userlist = list(set(userlist))

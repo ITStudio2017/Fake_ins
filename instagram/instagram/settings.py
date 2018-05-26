@@ -131,6 +131,58 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# logging的配置
+LOGGING = {
+    'version': 1,  # 只有一个版本
+    'disable_existing_loggers': False,  # 不禁用已存在的日志
+    # 输出格式的配置
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    # 过滤器
+    'filters': {
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    # 如何进一步处理错误信息
+    'handlers': {
+        # 储存所有错误信息到文件中
+        'console': {
+            'level': 'INFO',
+            'filters': ['require_debug_true'],
+            'class': 'logging.FileHandler',
+            'formatter': 'simple',
+            'filename': 'log/all.log',  # 路径
+        },
+        # ERROR以上的信息发给管理员
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'formatter': 'verbose',
+        }
+    },
+    # 第一步根据错误信息等级决定handlers的动作
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False  # 不会传回上一级
+        },
+        'myproject.custom': {
+            'handlers': ['console', 'mail_admins'],
+            'level': 'INFO',
+        }
+    }
+}
+
+
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/1.11/topics/i18n/
