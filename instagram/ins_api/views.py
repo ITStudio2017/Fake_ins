@@ -31,6 +31,7 @@ from users.signals import user_activated, user_registered
 from itertools import chain
 from operator import attrgetter
 from .serializers import Message, Message_1Serializer, Message_2Serializer, Message_3Serializer
+from .serializers import BriefPostTest, BriefPostTestSerializer
 
 def apiApplication(request):
 	if request.method == 'POST':
@@ -368,6 +369,7 @@ class UserPost(APIView):
 					is_shoucang = True
 				else:
 					is_shoucang = False
+				photo_num = len(Photos.objects.filter(post=post))
 				posts.append(BriefPost(post_id=post.id,
 										   user_id=post.user.id,
 										   username=post.user.username,
@@ -378,7 +380,8 @@ class UserPost(APIView):
 										   com_num=post.com_num,
 										   photo_0=post.photo_0,
 										   is_dianzan=is_dianzan,
-										   is_shoucang=is_shoucang
+										   is_shoucang=is_shoucang,
+										   photo_num=photo_num
 										   ))
 			serializer = BriefPostSerializer(posts, many=True)
 
@@ -412,7 +415,7 @@ class PasswordForget(APIView):
 		captcha = CaptchaStore.objects.get(hashkey=hashkey)
 		code = captcha.challenge
 		UsersActive.objects.create(user=user,hashkey=hashkey,code=code,status=2)
-		sendemail = EmailMessage('楠岃瘉鐮�','鎮ㄥソ锛屾偍鐨勯獙璇佺爜鏄�' + code,"alex_noreply@163.com",[email,])
+		sendemail = EmailMessage('Captcha','Your captcha is' + code,"alex_noreply@163.com",[email,])
 		sendemail.send()
 		return Response({'status':'Success','hashkey':hashkey})
 
@@ -590,7 +593,7 @@ class FollowPost(APIView):
 			return Response({'status':'UnknownError'})
 
 class LikeList(APIView):
-	"""鐐硅禐鍒楄〃"""
+	"""点赞列表"""
 	def get(self, request, format=None):
 		"""13"""
 		try:
@@ -609,6 +612,7 @@ class LikeList(APIView):
 					is_shoucang = True
 				else:
 					is_shoucang = False
+				photo_num = len(Photos.objects.filter(post=post))
 				posts.append(BriefPost(username=post.user.username,
 									   profile_picture=post.user.profile_picture,
 									   introduction=post.introduction,
@@ -619,7 +623,9 @@ class LikeList(APIView):
 									   is_dianzan=is_dianzan,
 									   is_shoucang=is_shoucang,
 									   post_id=post.id,
-									   user_id=post.user.id))
+									   user_id=post.user.id,
+									   photo_num=photo_num
+									   ))
 			serializer = BriefPostSerializer(posts,many=True)
 			return Response({'status':'Success','result':serializer.data})
 		except:
@@ -660,7 +666,7 @@ class LikeList(APIView):
 			return Response({'status':'UnknownError'})
 
 class PostsLinkApi(APIView):
-	"""鏀惰棌"""
+	""""""
 	def get(self, request, format=None):
 		"""12"""
 		try:
@@ -670,10 +676,23 @@ class PostsLinkApi(APIView):
 			for like in likeList:
 				postList.append(like.post.id)
 			posts = Posts.objects.filter(id__in=postList).order_by('-Pub_time')
-			serializer = PostSerializer(posts, many=True)
-			return Response(serializer.data)
+			postList = []
+			result = []
+			for post in posts:
+				photo_num = len(Photos.objects.filter(post=post))
+				briefPost = BriefPostTest(introduction=post.introduction,
+										  Pub_time=post.Pub_time,
+										  likes_num=post.likes_num,
+										  com_num=post.com_num,
+										  photo_0=post.photo_0,
+										  photo_num=photo_num
+										  )
+				serializer = BriefPostTestSerializer(briefPost.kwargs)
+				result.append(serializer.data)
+			return Response({'status':'Success','result':result})
 		except:
-			return Response({'status':"UnknownError"})
+			return Response({'status':'UnknownError'})
+
 
 	def post(self, request, format=None):
 		"""20,21"""

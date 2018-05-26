@@ -35,7 +35,7 @@ class BriefUserSerializer(serializers.Serializer):
 
 class BriefPost(object):
 	"""docstring for ClassName"""
-	def __init__(self, username, introduction, Pub_time, likes_num, com_num, profile_picture, photo_0, is_dianzan, is_shoucang, post_id, user_id):
+	def __init__(self, username, introduction, Pub_time, likes_num, com_num, profile_picture, photo_0, is_dianzan, is_shoucang, post_id, user_id, photo_num):
 		self.username = username
 		self.profile_picture = profile_picture
 		self.introduction = introduction
@@ -47,6 +47,24 @@ class BriefPost(object):
 		self.is_shoucang = is_shoucang
 		self.post_id = post_id
 		self.user_id = user_id
+		self.photo_num = photo_num
+
+class BriefPostTest(object):
+	"""docstring for BriefPost"""
+	def __init__(self, *args, **kwargs):
+		super(BriefPostTest, self).__init__()
+		self.args = args
+		self.kwargs = kwargs
+		
+
+class BriefPostTestSerializer(serializers.Serializer):
+	introduction = serializers.CharField()
+	Pub_time = serializers.DateTimeField()
+	likes_num = serializers.IntegerField()
+	com_num = serializers.IntegerField()
+	photo_0 = serializers.ImageField()
+	photo_num = serializers.IntegerField()
+		
 
 class BriefPostSerializer(serializers.Serializer):
 	username = serializers.CharField(max_length=15)
@@ -60,6 +78,7 @@ class BriefPostSerializer(serializers.Serializer):
 	is_dianzan = serializers.BooleanField()
 	post_id = serializers.IntegerField()
 	user_id = serializers.IntegerField()
+	photo_num = serializers.IntegerField()
 		
 
 class PostSerializer(serializers.ModelSerializer): 
@@ -107,6 +126,7 @@ class BriefLikesLinkSerializer(serializers.Serializer):
 	photo_0 = serializers.ImageField()
 	profile_picture = serializers.ImageField()
 	time = serializers.DateTimeField()
+
 
 class Message(object):
 	def __init__(self, **kwargs):
