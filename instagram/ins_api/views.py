@@ -17,15 +17,21 @@ from django.contrib.auth import authenticate, login, logout
 from rest_framework.authtoken.models import Token
 from django.views.decorators.csrf import csrf_exempt
 import rsa
-from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
-from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink, LikesLink, PostsLink, Comments
-import hashlib 
+from .serializers import UserSerializer, PostSerializer, PhotoSerializer, CommentSerializer
+from .serializers import BriefUser, BriefUserSerializer, LikesLinkSerializer, BriefPostSerializer, BriefPost
+from .serializers import BriefLikesLink, BriefLikesLinkSerializer
+from .models import LikesLink, PostsLink, Comments
+from .models import ApiApplicationer, Posts, UsersActive, Keys, Photos, FollowsLink
+import hashlib
 from rest_framework.pagination import PageNumberPagination
 from rest_framework import generics, mixins
 import time
 from users.utils import EmailActivationTokenGenerator, send_activation_email
 from users.signals import user_activated, user_registered
-
+from itertools import chain
+from operator import attrgetter
+from .serializers import Message, Message_1Serializer, Message_2Serializer, Message_3Serializer
+from .serializers import BriefPostTest, BriefPostTestSerializer
 
 def apiApplication(request):
 	if request.method == 'POST':
@@ -37,11 +43,11 @@ def apiApplication(request):
 		if (realCaptcha.response == captcha.lower()):
 			try:
 				user = ApiApplicationer.objects.get(email=email)
-				return render(request,'Application.html',{'message':'请不要重复申请。'})
+				return render(request,'Application.html',{'message':'Please Not Again'})
 			except:
 				ApiApplicationer.objects.create(email=email,name=name)
-				return render(request,'Application.html',{'message':'申请成功，请等待结果'})
-		return render(request,'Application.html',{'message':'验证码错误'})
+				return render(request,'Application.html',{'message':'Success'})
+		return render(request,'Application.html',{'message':'CaptchaError'})
 
 	hashkey = CaptchaStore.generate_key()
 	image_url = captcha_image_url(hashkey)
@@ -67,9 +73,9 @@ class ShortPost(APIView):
 			is_shoucang = False
 		briefPost = BriefPost(username=user.username,
 							  introduction=post.introduction,
-							  Pub_time=post.Pub_time, 
-							  likes_num=post.likes_num, 
-							  com_num=post.com_num, 
+							  Pub_time=post.Pub_time,
+							  likes_num=post.likes_num,
+							  com_num=post.com_num,
 							  profile_picture=user.profile_picture,
 							  photo_0=post.photo_0,
 							  is_dianzan=is_dianzan,
@@ -80,7 +86,6 @@ class ShortPost(APIView):
 		serializer = BriefPostSerializer(briefPost)
 		return Response(serializer.data)
 
-		
 class UserDetail(APIView):
 	permission_classes = (IsAuthenticated,)
 	def get_object(self, pk):
@@ -93,7 +98,8 @@ class UserDetail(APIView):
 		"""10"""
 		user = self.get_object(pk)
 		serializer = UserSerializer(user)
-		return Response(serializer.data)
+		post_num = len(Posts.objects.filter(user=user))
+		return Response({'result':serializer.data,'post_num':post_num})
 
 	def put(self, request, format=None):
 		"""11"""
@@ -140,10 +146,6 @@ class PhotoList(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
-		
-
-
 class UserRegister(APIView):
 	"""2"""
 	def post(self, request, format=None):
@@ -177,7 +179,6 @@ class UserRegister(APIView):
 				except:
 					return Response({'status':'UnknownError'})
 
-
 class Accounts(APIView):
 	"""3"""
 	def post(self, request, format=None):
@@ -189,8 +190,6 @@ class Accounts(APIView):
 				return Response({'status':'NotExist'})
 		except:
 			return Response({'status':'UnknownError'})
-		
-
 
 class UserToken(APIView):
 	"""1"""
@@ -237,8 +236,6 @@ class PostDetail(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-		
-
 class PostsAPI(generics.ListCreateAPIView):
 	"""7"""
 	permission_classes = (IsAuthenticated,)
@@ -263,8 +260,11 @@ class PostsAPI(generics.ListCreateAPIView):
 				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
 			else:
 				post_id = int(request.GET['post_id'])
-				now = postIDList.index(post_id)
-				postIDList = postIDList[now+1:now+6]
+				postIDList_2 = []
+				for postID in postIDList:
+					if postID < post_id:
+						postIDList_2.append(postID)
+				postIDList = postIDList_2[:5]
 				if not postIDList:
 					return Response({'status':'null'})
 				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
@@ -305,7 +305,7 @@ class PostsAPI(generics.ListCreateAPIView):
 		for i in range(photo_num):
 			photo = Photos.objects.create(photo=data['photo_'+ str(i)],post=post)
 			photo.save()
-		post.save()			
+		post.save()
 		return Response({'status':'Success'})
 
 	def put(self, request,format=None):
@@ -342,7 +342,7 @@ class PostList(mixins.ListModelMixin,
 		return self.list(request, *args, **kwargs)
 
 
-	
+
 	def get_queryset(self):
 		user = self.request.user
 		userlist = [user.id]
@@ -352,10 +352,6 @@ class PostList(mixins.ListModelMixin,
 		userlist = list(set(userlist))
 		postList = Posts.objects.filter(user__in=userlist).order_by('-Pub_time')
 		return postList
-
-
-	
-		
 
 class UserPost(APIView):
 	permission_classes = (IsAuthenticated,)
@@ -373,6 +369,7 @@ class UserPost(APIView):
 					is_shoucang = True
 				else:
 					is_shoucang = False
+				photo_num = len(Photos.objects.filter(post=post))
 				posts.append(BriefPost(post_id=post.id,
 										   user_id=post.user.id,
 										   username=post.user.username,
@@ -383,15 +380,14 @@ class UserPost(APIView):
 										   com_num=post.com_num,
 										   photo_0=post.photo_0,
 										   is_dianzan=is_dianzan,
-										   is_shoucang=is_shoucang
+										   is_shoucang=is_shoucang,
+										   photo_num=photo_num
 										   ))
 			serializer = BriefPostSerializer(posts, many=True)
 
 			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
-
-
 
 class CheckFollow(APIView):
 	def get(self, request, pk, format=None):
@@ -403,8 +399,6 @@ class CheckFollow(APIView):
 				return Response({'status':'No'})
 		except:
 			return Response({'status':'UnknownError'})
-		
-
 
 class PasswordForget(APIView):
 	"""5"""
@@ -421,7 +415,7 @@ class PasswordForget(APIView):
 		captcha = CaptchaStore.objects.get(hashkey=hashkey)
 		code = captcha.challenge
 		UsersActive.objects.create(user=user,hashkey=hashkey,code=code,status=2)
-		sendemail = EmailMessage('验证码','您好，您的验证码是' + code,"alex_noreply@163.com",[email,])
+		sendemail = EmailMessage('Captcha','Your captcha is' + code,"alex_noreply@163.com",[email,])
 		sendemail.send()
 		return Response({'status':'Success','hashkey':hashkey})
 
@@ -447,8 +441,21 @@ class PasswordForget(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
-
+class ChangePassword(APIView):
+	def post(self, request, format=None):
+		try:
+			data = request.data
+			oldPassword = data['oldPassword']
+			password = data['password']
+			password2 = data['password2']
+			if request.user.check_password(oldPassword) and password == password2:
+				request.user.password = make_password(password)
+				request.user.save()
+				return Response({'status':'Success'})
+			else:
+				return Response({'status':'Failure'})
+		except:
+			return Response({'status':'UnknownError'})
 
 class CommentsAPI(APIView):
 	"""24"""
@@ -456,7 +463,7 @@ class CommentsAPI(APIView):
 	def get(self, request, format=None):
 		try:
 			post = request.GET['post_id']
-			commentList = Comments.objects.filter(post=post).order_by('-Pub_time')
+			commentList = Comments.objects.filter(post=post).order_by('-time')
 			serializer = CommentSerializer(commentList, many=True)
 			return Response(serializer.data)
 		except:
@@ -485,22 +492,87 @@ class CommentsAPI(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
 class Search(APIView):
 	"""8"""
 	def post(self, request, format=None):
-		data = request.data
 		try:
+			data = request.data
+			page = int(request.GET['page'])
 			searchType = data['searchType']
 			if searchType == 'user':
 				keyword = data['keyword']
-				user = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)).order_by('-followed_num')
-				serializer = UserSerializer(user, many=True)
+				users = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)).order_by('-date_joined')
+				userIDList = []
+				userList = []
+				for user in users:
+					userIDList.append(user.id)
+				if page == 1:
+					userIDList = userIDList[:5]
+				else:
+					user_id = int(request.GET['user_id'])
+					now = userIDList.index(user_id)
+					userIDList = userIDList[now+1:now+6]
+				users = User.objects.filter(id__in=userIDList).order_by('-date_joined')
+				for user in users:
+					if FollowsLink.objects.filter(From=request.user,To=user):
+						is_guanzhu = True
+					else:
+						is_guanzhu = False
+					userList.append(BriefUser(user_id=user.id,
+											      username=user.username,
+												  gender=user.gender,
+												  birthday=user.birthday,
+												  following_num=user.following_num,
+												  followed_num=user.followed_num,
+												  profile_picture=user.profile_picture,
+												  is_guanzhu=is_guanzhu
+												  ))
+				serializer = BriefUserSerializer(userList, many=True)
+
+
+
 			if searchType == 'post':
 				keyword = data['keyword']
 				postList = Posts.objects.filter(introduction__contains=keyword).order_by('-Pub_time')
-				serializer = PostSerializer(postList, many=True)
-			return Response(serializer.data)
+				postIDList = []
+				postIDList_2 = []
+				for post in postList:
+					postIDList.append(post.id)
+				if page == 1:
+					postIDList = postIDList[:5]
+				else:
+					post_id = int(request.GET['post_id'])
+					for postID in postIDList:
+						if postID < post_id:
+							postIDList_2.append(postID)
+					postIDList = postIDList_2[:5]
+				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
+				posts = []
+				for post in postList:
+					if LikesLink.objects.filter(user=request.user,post=post):
+						is_dianzan = True
+					else:
+						is_dianzan = False
+					if PostsLink.objects.filter(user=request.user,post=post):
+						is_shoucang = True
+					else:
+						is_shoucang = False
+					posts.append(BriefPost(username=post.user.username,
+										   profile_picture=post.user.profile_picture,
+										   introduction=post.introduction,
+										   Pub_time=post.Pub_time,
+										   likes_num=post.likes_num,
+										   com_num=post.com_num,
+										   photo_0=post.photo_0,
+										   is_shoucang=is_shoucang,
+										   is_dianzan=is_dianzan,
+										   post_id=post.id,
+										   user_id=post.user.id
+										   ))
+				serializer= BriefPostSerializer(posts, many=True)
+			if not serializer.data:
+				return Response({'status':'null'})
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -530,8 +602,32 @@ class LikeList(APIView):
 			for like in likeList:
 				postIDList.append(like.post.id)
 			postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
-			serializer = PostSerializer(postList, many=True)
-			return Response(serializer.data)
+			posts = []
+			for post in postList:
+				if LikesLink.objects.filter(user=request.user,post=post):
+					is_dianzan = True
+				else:
+					is_dianzan = False
+				if PostsLink.objects.filter(user=request.user,post=post):
+					is_shoucang = True
+				else:
+					is_shoucang = False
+				photo_num = len(Photos.objects.filter(post=post))
+				posts.append(BriefPost(username=post.user.username,
+									   profile_picture=post.user.profile_picture,
+									   introduction=post.introduction,
+									   Pub_time=post.Pub_time,
+									   likes_num=post.likes_num,
+									   com_num=post.com_num,
+									   photo_0=post.photo_0,
+									   is_dianzan=is_dianzan,
+									   is_shoucang=is_shoucang,
+									   post_id=post.id,
+									   user_id=post.user.id,
+									   photo_num=photo_num
+									   ))
+			serializer = BriefPostSerializer(posts,many=True)
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -569,9 +665,8 @@ class LikeList(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
 class PostsLinkApi(APIView):
-	"""收藏"""
+	""""""
 	def get(self, request, format=None):
 		"""12"""
 		try:
@@ -581,10 +676,23 @@ class PostsLinkApi(APIView):
 			for like in likeList:
 				postList.append(like.post.id)
 			posts = Posts.objects.filter(id__in=postList).order_by('-Pub_time')
-			serializer = PostSerializer(posts, many=True)
-			return Response(serializer.data)
+			postList = []
+			result = []
+			for post in posts:
+				photo_num = len(Photos.objects.filter(post=post))
+				briefPost = BriefPostTest(introduction=post.introduction,
+										  Pub_time=post.Pub_time,
+										  likes_num=post.likes_num,
+										  com_num=post.com_num,
+										  photo_0=post.photo_0,
+										  photo_num=photo_num
+										  )
+				serializer = BriefPostTestSerializer(briefPost.kwargs)
+				result.append(serializer.data)
+			return Response({'status':'Success','result':result})
 		except:
-			return Response({'status':"UnknownError"})
+			return Response({'status':'UnknownError'})
+
 
 	def post(self, request, format=None):
 		"""20,21"""
@@ -613,42 +721,70 @@ class PostsLinkApi(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-
-
-
 class FollowPerson(APIView):
 	"""14"""
 	permission_classes = (IsAuthenticated,)
 	def get(self, request, format=None):
-		user = request.user
 		try:
+			user_id = request.GET['user_id']
+			user = User.objects.get(id=user_id)
 			followList = FollowsLink.objects.filter(From=user).order_by('-time')
 			ToList = []
 			for follow in followList:
 				ToList.append(follow.To.id)
 			userList = User.objects.filter(id__in=ToList)
-			serializer = UserSerializer(userList, many=True)
-			return Response(serializer.data)
+			users = []
+			for user_in in userList:
+				if FollowsLink.objects.filter(From=request.user,To=user_in):
+					is_guanzhu = True
+				else:
+					is_guanzhu = False
+				users.append(BriefUser(user_id=user_in.id,
+									   username=user_in.username,
+									   gender=user_in.gender,
+									   birthday=user_in.birthday,
+									   following_num=user_in.following_num,
+									   followed_num=user_in.followed_num,
+									   profile_picture=user_in.profile_picture,
+									   is_guanzhu=is_guanzhu))
+			serializer = BriefUserSerializer(users, many=True)
+			if serializer.data:
+				return Response({'status':'Success','result':serializer.data})
+			else:
+				return Response({'status':'null'})
 		except:
 			return Response({'status':'UnknownError'})
 
-		
 class ToPerson(APIView):
 	"""15"""
 	def get(self, request, format=None):
 		try:
-			user = request.user
-			followList = FollowsLink.objects.filter(To=user)
+			user_id = request.GET['user_id']
+			user = User.objects.get(id=user_id)
+			followList = FollowsLink.objects.filter(To=user).order_by('-time')
 			FromList = []
 			for follow in followList:
 				FromList.append(follow.From.id)
 			userList = User.objects.filter(id__in=FromList)
-			serializer = UserSerializer(userList, many=True)
+			users = []
+			for user_in in userList:
+				if FollowsLink.objects.filter(From=user,To=user_in):
+					is_guanzhu = True
+				else:
+					is_guanzhu = False
+				users.append(BriefUser(user_id=user_in.id,
+									   username=user_in.username,
+									   gender=user_in.gender,
+									   birthday=user_in.birthday,
+									   following_num=user_in.following_num,
+									   followed_num=user_in.followed_num,
+									   profile_picture=user_in.profile_picture,
+									   is_guanzhu=is_guanzhu))
+			serializer = BriefUserSerializer(users, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})
 
-		
 class FollowMessage(APIView):
 	"""17"""
 	def get(self, request, format=None):
@@ -657,13 +793,22 @@ class FollowMessage(APIView):
 			ToList = []
 			for follow in followList:
 				ToList.append(follow.To.id)
-			like = LikesLink.objects.filter(user__in=ToList).order_by('-time')
-			serializer = LikesLinkSerializer(like, many=True)
-			return Response(serializer.data)
+			likes = LikesLink.objects.filter(user__in=ToList).order_by('-time')
+			likeList = []
+			for like in likes:
+				likeList.append(BriefLikesLink(username=like.user.username,
+											   user_id=like.user.id,
+											   post_id=like.post.id,
+											   introduction=like.post.introduction,
+											   photo_0=like.post.photo_0,
+											   profile_picture=like.user.profile_picture,
+											   time=like.time
+											   ))
+
+			serializer = BriefLikesLinkSerializer(likeList,many=True)
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
-
-
 
 class Follow(APIView):
 	permission_classes = (IsAuthenticated,)
@@ -704,11 +849,6 @@ class Follow(APIView):
 		except:
 			return Response({'status':'UnknownError'})
 
-		
-				
-
-
-
 class PublicKey(APIView):
 	def get(self, request, format=None):
 		(pubkey, privkey) = rsa.newkeys(1024)
@@ -718,9 +858,67 @@ class PublicKey(APIView):
 		key.save()
 		return Response({'pubkey':pubkey})
 
+class MessageList(APIView):
+	"""16"""
+	def get(self, request, format=None):
+		try:
+			user = request.user
+			posts = Posts.objects.filter(user=user)
+			postIDList = []
+			for post in posts:
+				postIDList.append(post.id)
+			follows = FollowsLink.objects.filter(To=user)
+			likes = LikesLink.objects.filter(post__in=postIDList)
+			comments = Comments.objects.filter(post__in=postIDList)
+			messages = sorted(chain(follows,likes,comments),key=attrgetter('time'),reverse=True)
+			messageList = []
+			result = []
+			for message in messages:
+				if type(message) == FollowsLink:
+					if FollowsLink.objects.filter(From=request.user,To=message.From):
+						is_guanzhu = True
+					else:
+						is_guanzhu = False
+					message = Message(user_id=message.From.id,
+									  username=message.From.username,
+									  profile_picture=message.From.profile_picture,
+									  messageType=1,
+									  time=message.time,
+									  is_guanzhu=is_guanzhu,
+									  )
+					serializer = Message_1Serializer(message.kwargs)
+					result.append(serializer.data)
+				if type(message) == LikesLink:
+					message = Message(user_id=message.user.id,
+									  username=message.user.username,
+									  profile_picture=message.user.profile_picture,
+									  messageType=2,
+									  time=message.time,
+									  post_id=message.post.id,
+									  photo_0=message.post.photo_0,
+									  )
+					serializer = Message_2Serializer(message.kwargs)
+					result.append(serializer.data)
+				if type(message) == Comments:
+					message = Message(user_id=message.user.id,
+									  username=message.user.username,
+									  profile_picture=message.user.profile_picture,
+									  messageType=3,
+									  time=message.time,
+									  post_id=message.post.id,
+									  photo_0=message.post.photo_0,
+									  content=message.content
+									  )
+					serializer = Message_3Serializer(message.kwargs)
+					result.append(serializer.data)
+			return Response({'status':'Success','result':result})
+		except:
+			return Response({'status':'UnknownError'})
 
 
+		
 
+		
 class Test(APIView):
 	def get(self, request, format=None):
 		timestamp = time.time()
@@ -751,14 +949,11 @@ class Test(APIView):
 			print("False")
 		return Response({'status':'OK'})
 
-		
-
-
-
-		
-
-
-
+	def delete(self, request, format=None):
+		try:
+			return Response({'status':'Success'})
+		except:
+			return Response({'status':'UnknownError'})
 
 def show_picture(request, url):
 	image_data = open('media/' + url, 'rb').read()

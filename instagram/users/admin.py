@@ -270,7 +270,7 @@ class PhotosAdmin(admin.ModelAdmin):
 
 class CommentsAdmin(admin.ModelAdmin):
     fields = ('user', 'post', 'content')
-    list_display = ('user', 'post', 'Pub_time')
+    list_display = ('user', 'post', 'time')
     list_per_page = 30
     search_fields = ('user__email', 'user__username', 'user__nickname', 'post__user__username',
                      'post__user__email', 'post__user__nickname')
