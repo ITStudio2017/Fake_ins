@@ -542,20 +542,21 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数：
 >
-> | 字段名称        | 字段描述         | 类型   |
-> | --------------- | ---------------- | ------ |
-> | username        | 动态发布者账号名 | string |
-> | introduction    | 动态介绍         | string |
-> | Pub_time        | 发布时间         | string |
-> | profile_picture | 动态发布者头像   | string |
-> | likes_num       | 点赞数           | int    |
-> | com_num         | 评论数           | int    |
-> | photo_0         | 动态第一张照片   | string |
-> | is_shoucang     | 是否收藏         | bool   |
-> | is_dianzan      | 是否点赞         | bool   |
-> | post_id         | 动态ID           | int    |
-> | user_id         | 动态发布者ID     | Int    |
-> | status          | 状态码           | string |
+> | 字段名称          | 字段描述         | 类型   |
+> | ----------------- | ---------------- | ------ |
+> | username          | 动态发布者账号名 | string |
+> | introduction      | 动态介绍         | string |
+> | Pub_time          | 发布时间         | string |
+> | profile_picture   | 动态发布者头像   | string |
+> | likes_num         | 点赞数           | int    |
+> | com_num           | 评论数           | int    |
+> | photo_0           | 动态第一张照片   | string |
+> | is_shoucang       | 是否收藏         | bool   |
+> | is_dianzan        | 是否点赞         | bool   |
+> | post_id           | 动态ID           | int    |
+> | user_id           | 动态发布者ID     | Int    |
+> | status            | 状态码           | string |
+> | photo_0_thumbnail | 动态首图缩略图   | string |
 >
 > 
 >
@@ -565,19 +566,21 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >     "status": "Success",
 >     "result": [
 >         {
->             "username": "管理员",
->             "introduction": "不错",
->             "Pub_time": "2018-05-17T23:25:50.210277+08:00",
->             "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->             "likes_num": 0,
+>             "username": "xiaochen",
+>             "introduction": "",
+>             "Pub_time": "2018-05-26T17:49:35.057960",
+>             "profile_picture": "/media/profile_picture/default.jpg",
+>             "likes_num": 1,
 >             "com_num": 0,
->             "photo_0": "/media/photos/20180517232550_52.jpg",
->             "is_shoucang": false,
->             "is_dianzan": false,
->             "post_id": 26,
+>             "photo_0": "/media/photos/20180526174935_24.jpg",
+>             "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
+>             "is_shoucang": true,
+>             "is_dianzan": true,
+>             "is_many": false,
+>             "post_id": 1,
 >             "user_id": 2
 >         }
->
+>     ]
 > }
 >
 > 结果为空：
@@ -617,33 +620,36 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数：
 >
-> | 字段名称        | 字段描述         | 类型   |
-> | --------------- | ---------------- | ------ |
-> | username        | 动态发布者账号名 | string |
-> | introduction    | 动态简介         | string |
-> | Pub_time        | 发布时间         | string |
-> | profile_picture | 动态发布者头像   | string |
-> | likes_num       | 点赞数           | int    |
-> | com_num         | 评论数           | int    |
-> | photo_0         | 动态第一张照片   | string |
-> | is_shoucang     | 是否收藏         | bool   |
-> | is_dianzan      | 是否点赞         | bool   |
-> | post_id         | 动态ID           | int    |
-> | user_id         | 发布者ID         | int    |
+> | 字段名称          | 字段描述         | 类型   |
+> | ----------------- | ---------------- | ------ |
+> | username          | 动态发布者账号名 | string |
+> | introduction      | 动态简介         | string |
+> | Pub_time          | 发布时间         | string |
+> | profile_picture   | 动态发布者头像   | string |
+> | likes_num         | 点赞数           | int    |
+> | com_num           | 评论数           | int    |
+> | photo_0           | 动态第一张照片   | string |
+> | is_shoucang       | 是否收藏         | bool   |
+> | is_dianzan        | 是否点赞         | bool   |
+> | post_id           | 动态ID           | int    |
+> | user_id           | 发布者ID         | int    |
+> | photo_0_thumbnail | 动态首图缩略图   | string |
 >
 > 例：
 >
 > {
->     "username": "管理员",
->     "introduction": "不错",
->     "Pub_time": "2018-05-15T19:42:03.672456+08:00",
->     "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->     "likes_num": 0,
+>     "username": "xiaochen",
+>     "introduction": "",
+>     "Pub_time": "2018-05-26T17:49:35.057960",
+>     "profile_picture": "/media/profile_picture/default.jpg",
+>     "likes_num": 1,
 >     "com_num": 0,
->     "photo_0": "/media/photos/20180515194200_76.JPG",
->     "is_shoucang": false,
->     "is_dianzan": false,
->     "post_id": 3,
+>     "photo_0": "/media/photos/20180526174935_24.jpg",
+>     "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
+>     "is_shoucang": true,
+>     "is_dianzan": true,
+>     "is_many": false,
+>     "post_id": 1,
 >     "user_id": 2
 > }
 
@@ -667,27 +673,24 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数：
 >
-> | 字段名称         | 字段描述 | 类型   |
-> | ---------------- | -------- | ------ |
-> | photo_num        | 照片数量 | int    |
-> | result  :  id    | ID       | int    |
-> | result  :  post  | 动态ID   | string |
-> | result  :  photo | 照片地址 | string |
+> | 字段名称          | 字段描述       | 类型   |
+> | ----------------- | -------------- | ------ |
+> | photo_num         | 照片数量       | int    |
+> | result  :  id     | ID             | int    |
+> | result  :  post   | 动态ID         | string |
+> | result  :  photo  | 照片地址       | string |
+> | photo_0_thumbnail | 动态首图缩略图 | string |
 >
 > 例：
 >
 > {
->     "photo_num": 2,
+>     "photo_num": 1,
 >     "result": [
 >         {
->             "id": 6,
->             "post": 3,
->             "photo": "/media/photos/20180515194203_92.JPG"
->         },
->         {
->             "id": 5,
->             "post": 3,
->             "photo": "/media/photos/20180515194203_61.JPG"
+>             "photo_thumbnail": "/media/CACHE/images/photos/20180526174935_53/95a42cb52daa3f22fa6c0c2b4519a875.jpg",
+>             "id": 1,
+>             "post": 1,
+>             "photo": "/media/photos/20180526174935_53.jpg"
 >         }
 >     ]
 > }
@@ -784,28 +787,31 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 > >    "status": "Success",
 > >    "result": [
 > >        {
-> >            "username": "管理员",
-> >            "introduction": "不错",
-> >            "Pub_time": "2018-05-17T23:25:50.210277+08:00",
-> >            "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
-> >            "likes_num": 0,
+> >            "username": "xiaochen",
+> >            "introduction": "",
+> >            "Pub_time": "2018-05-26T17:49:35.057960",
+> >            "profile_picture": "/media/profile_picture/default.jpg",
+> >            "likes_num": 1,
 > >            "com_num": 0,
-> >            "photo_0": "/media/photos/20180517232550_52.jpg",
-> >            "is_shoucang": false,
-> >            "is_dianzan": false,
-> >            "post_id": 26,
+> >            "photo_0": "/media/photos/20180526174935_24.jpg",
+> >            "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
+> >            "is_shoucang": true,
+> >            "is_dianzan": true,
+> >            "is_many": false,
+> >            "post_id": 1,
 > >            "user_id": 2
 > >        }
-> >
-> >]
-> >
+> >    ]
 > >}
 > >
 > >结果为空：
+> >
+> >{
+> >
+> > "status": "null"
+> >
+> >}
 >
-> {
->     "status": "null"
-> }
 
 
 
@@ -949,7 +955,7 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 
 > --------
 >
-> 描述：提供我的收藏的动态
+> 描述：提供我收藏的动态
 >
 > 1、调用方法： get
 >
@@ -961,28 +967,27 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 动态列表
 >
+> | 字段名称          | 字段描述       | 类型   |
+> | ----------------- | -------------- | ------ |
+> | is_many           | 动态是否多图   | bool   |
+> | photo_0_thumbnail | 动态首图缩略图 | string |
+>
 > 例：
 >
-> [
->     {
->         "id": 1,
->         "user": 2,
->         "introduction": "不错",
->         "Pub_time": "2018-05-15T19:42:00.878032+08:00",
->         "likes_num": 0,
->         "com_num": 0
->     }
->
->  {
->         "id": 2,
->         "user": 2,
->         "introduction": "不错",
->         "Pub_time": "2018-05-15T19:42:00.878032+08:00",
->         "likes_num": 0,
->         "com_num": 0
->     }
->
-> ]
+> {
+>     "status": "Success",
+>     "result": [
+>         {
+>             "introduction": "",
+>             "Pub_time": "2018-05-26T17:49:35.057960",
+>             "likes_num": 1,
+>             "com_num": 0,
+>             "photo_0": "/media/photos/20180526174935_24.jpg",
+>             "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
+>             "is_many": false
+>         }
+>     ]
+> }
 >
 > 5、错误信息
 >
@@ -1169,14 +1174,15 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数：
 >
-> | 字段名称     | 字段描述 | 类型   |
-> | ------------ | -------- | ------ |
-> | introduction | 动态描述 | string |
-> | user_id      | 用户ID   | int    |
-> | post_id      | 动态ID   | int    |
-> | time         | 点赞时间 | string |
-> | username     | 用户名   | string |
-> | photo_0      | 首图     | string |
+> | 字段名称          | 字段描述       | 类型   |
+> | ----------------- | -------------- | ------ |
+> | introduction      | 动态描述       | string |
+> | user_id           | 用户ID         | int    |
+> | post_id           | 动态ID         | int    |
+> | time              | 点赞时间       | string |
+> | username          | 用户名         | string |
+> | photo_0           | 首图           | string |
+> | photo_0_thumbnail | 动态首图缩略图 | string |
 >
 > 例：
 >
@@ -1185,12 +1191,13 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >     "result": [
 >         {
 >             "username": "xiaochen",
->             "user_id": 3,
+>             "user_id": 2,
 >             "post_id": 1,
->             "introduction": "不错",
->             "photo_0": "/media/photos/20180515194200_76.JPG",
+>             "introduction": "",
+>             "photo_0": "/media/photos/20180526174935_24.jpg",
+>             "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
 >             "profile_picture": "/media/profile_picture/default.jpg",
->             "time": "2018-05-15T19:35:41.330082+08:00"
+>             "time": "2018-05-26T23:53:58.266141"
 >         }
 >     ]
 > }
@@ -1323,32 +1330,28 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数
 >
+> | 字段名称          | 字段描述       | 类型   |
+> | ----------------- | -------------- | ------ |
+> | is_many           | 动态是否多图   | bool   |
+> | photo_0_thumbnail | 动态首图缩略图 | string |
+>
+> 
+>
 > {
 >     "status": "Success",
 >     "result": [
 >         {
->             "username": "管理员",
->             "introduction": "不错",
->             "Pub_time": "2018-05-15T19:42:03.042706+08:00",
->             "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->             "likes_num": 0,
+>             "username": "xiaochen",
+>             "introduction": "",
+>             "Pub_time": "2018-05-26T17:49:35.057960",
+>             "profile_picture": "/media/profile_picture/default.jpg",
+>             "likes_num": 1,
 >             "com_num": 0,
->             "photo_0": "/media/photos/20180515194200_76.JPG",
->             "is_shoucang": false,
+>             "photo_0": "/media/photos/20180526174935_24.jpg",
+>             "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
+>             "is_shoucang": true,
 >             "is_dianzan": true,
->             "post_id": 2,
->             "user_id": 2
->         },
->         {
->             "username": "管理员",
->             "introduction": "不错",
->             "Pub_time": "2018-05-15T19:42:00.878032+08:00",
->             "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->             "likes_num": 0,
->             "com_num": 0,
->             "photo_0": "/media/photos/20180515194200_76.JPG",
->             "is_shoucang": false,
->             "is_dianzan": true,
+>             "is_many": false,
 >             "post_id": 1,
 >             "user_id": 2
 >         }
@@ -1461,42 +1464,34 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >
 > 4、返回参数：
 >
-> 表单详情参考上文
+> | 字段名称          | 字段描述       | 类型   |
+> | ----------------- | -------------- | ------ |
+> | is_many           | 动态是否多图   | Bool   |
+> | photo_0_thumbnail | 动态首图缩略图 | string |
 >
-> 
+> 表单详情参考上文:
+>
+> 例：
 >
 > {
 >     "status": "Success",
 >     "result": [
 >         {
->             "username": "管理员",
->             "introduction": "不错",
->             "Pub_time": "2018-05-17T23:25:50.210277+08:00",
->             "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->             "likes_num": 0,
+>             "username": "xiaochen",
+>             "introduction": "",
+>             "Pub_time": "2018-05-26T17:49:35.057960",
+>             "profile_picture": "/media/profile_picture/default.jpg",
+>             "likes_num": 1,
 >             "com_num": 0,
->             "photo_0": "/media/photos/20180517232550_52.jpg",
->             "is_shoucang": false,
->             "is_dianzan": false,
->             "post_id": 26,
->             "user_id": 2
->         },
->         {
->             "username": "管理员",
->             "introduction": "不错",
->             "Pub_time": "2018-05-17T23:25:19.456070+08:00",
->             "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->             "likes_num": 0,
->             "com_num": 0,
->             "photo_0": "/media/photos/20180517232519_80.jpg",
->             "is_shoucang": false,
->             "is_dianzan": false,
->             "post_id": 25,
+>             "photo_0": "/media/photos/20180526174935_24.jpg",
+>             "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg",
+>             "is_shoucang": true,
+>             "is_dianzan": true,
+>             "is_many": true,
+>             "post_id": 1,
 >             "user_id": 2
 >         }
->
-> ]
->
+>     ]
 > }
 
 
@@ -1651,30 +1646,32 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >>
 >> 消息类型:messageType=2
 >>
->> | 字段名称        | 字段描述 | 类型   |
->> | --------------- | -------- | ------ |
->> | user_id         | 同上     | 同上   |
->> | username        | 同上     | 同上   |
->> | profile_picture | 同上     | 同上   |
->> | messageType     | 同上     | 同上   |
->> | time            | 同上     | 同上   |
->> | post_id         | 动态ID   | int    |
->> | photo_0         | 动态首图 | string |
+>> | 字段名称          | 字段描述       | 类型   |
+>> | ----------------- | -------------- | ------ |
+>> | user_id           | 同上           | 同上   |
+>> | username          | 同上           | 同上   |
+>> | profile_picture   | 同上           | 同上   |
+>> | messageType       | 同上           | 同上   |
+>> | time              | 同上           | 同上   |
+>> | post_id           | 动态ID         | int    |
+>> | photo_0           | 动态首图       | string |
+>> | photo_0_thumbnail | 动态首图缩略图 | string |
 >
 >> ### 评论
 >>
 >> 消息类型:messageType=3
 >>
->> | 字段名称        | 字段描述 | 类型   |
->> | --------------- | -------- | ------ |
->> | user_id         | 同上     | 同上   |
->> | username        | 同上     | 同上   |
->> | profile_picture | 同上     | 同上   |
->> | messageType     | 同上     | 同上   |
->> | time            | 同上     | 同上   |
->> | post_id         | 同上     | 同上   |
->> | photo_0         | 同上     | 同上   |
->> | content         | 评论内容 | string |
+>> | 字段名称          | 字段描述       | 类型   |
+>> | ----------------- | -------------- | ------ |
+>> | user_id           | 同上           | 同上   |
+>> | username          | 同上           | 同上   |
+>> | profile_picture   | 同上           | 同上   |
+>> | messageType       | 同上           | 同上   |
+>> | time              | 同上           | 同上   |
+>> | post_id           | 同上           | 同上   |
+>> | photo_0           | 同上           | 同上   |
+>> | content           | 评论内容       | string |
+>> | photo_0_thumbnail | 动态首图缩略图 | string |
 >
 >例：
 >
@@ -1689,17 +1686,29 @@ Token与字符串有一个空格的距离,通过令牌就可以判断用户
 >            "time": "2018-05-25T00:36:53.426185+08:00",
 >            "post_id": 4,
 >            "photo_0": "/media/photos/20180517195857_68.jpg",
->            "content": "112"
->        },
->        {
->            "user_id": 2,
->            "username": "管理员",
->            "profile_picture": "/media/profile_picture/0723_2_J0Kf8zT.JPG",
->            "messageType": 2,
->            "time": "2018-05-15T19:35:41.330082+08:00",
->            "post_id": 1,
->            "photo_0": "/media/photos/20180515194200_76.JPG"
->        },
+>            "content": "112",
+>
+>​            "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg"           },
+>
+>​         {       
+>
+>​		 "user_id": 2,       
+>
+>​		 "username": "xiaochen",       
+>
+>​		 "profile_picture": "/media/profile_picture/default.jpg",       
+>
+>​		 "messageType": 2,       
+>
+>​		 "time": "2018-05-26T23:53:58.266141",       
+>
+>​		 "post_id": 1,        
+>
+>​		 "photo_0": "/media/photos/20180526174935_24.jpg",       
+>
+>​		 "photo_0_thumbnail": "/media/CACHE/images/photos/20180526174935_24/1348303ffdee466e23a583f9e357a629.jpg"   
+>
+>​	 },
 >        {
 >            "user_id": 3,
 >            "username": "xiaochen",
