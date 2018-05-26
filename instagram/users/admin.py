@@ -7,6 +7,7 @@ from .conf import settings
 from .forms import UserChangeForm, UserCreationForm, UserActiveForm
 from ins_api.models import *
 from .utils import send_activation_email
+from imagekit.admin import AdminThumbnail
 
 try:
     from django.contrib.admin.utils import model_ngettext
@@ -261,16 +262,17 @@ class PostsAdmin(admin.ModelAdmin):
 
 class PhotosAdmin(admin.ModelAdmin):
     fields = ('post', 'photo')
+    admin_thumbnail = AdminThumbnail(image_field='photo_thumbnail',template='thumbnail.html')
     list_per_page = 30
     search_fields = ('post__user__username', 'post__user__nickname', 'post__user__email')
-    list_display = ('post', 'image_tag')
+    list_display = ('post', 'admin_thumbnail')
     raw_id_fields = ('post',)
     readonly_fields = ('image_tag',)
 
 
 class CommentsAdmin(admin.ModelAdmin):
     fields = ('user', 'post', 'content')
-    list_display = ('user', 'post', 'Pub_time')
+    list_display = ('user', 'post', 'time')
     list_per_page = 30
     search_fields = ('user__email', 'user__username', 'user__nickname', 'post__user__username',
                      'post__user__email', 'post__user__nickname')
