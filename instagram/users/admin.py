@@ -7,6 +7,7 @@ from .conf import settings
 from .forms import UserChangeForm, UserCreationForm, UserActiveForm
 from ins_api.models import *
 from .utils import send_activation_email
+from imagekit.admin import AdminThumbnail
 
 try:
     from django.contrib.admin.utils import model_ngettext
@@ -217,11 +218,11 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserCreationForm
     fieldsets = (
         (None, {
-            'fields': ('email', 'username', 'password', 'is_active')
+            'fields': ('email', 'username', 'is_active')
         }),
         (_('个人信息'), {
             'classes': ('wide',),
-            'fields': ('profile_picture', 'nickname', 'gender', 'address', 'birthday', 'introduction')
+            'fields': ('image_tag', 'nickname', 'gender', 'address', 'birthday', 'introduction')
         }),
         (_('重要日期'), {
             'fields': ('last_login', 'date_joined')
@@ -246,7 +247,7 @@ class UserAdmin(BaseUserAdmin):
     list_display_links = ('username', 'image_tag')
     list_filter = ('gender', UserFilterPubtime, UserFilterBirthday)
     list_editable = ('is_active',)
-    readonly_fields = ('image_tag', 'last_login', 'date_joined')
+    readonly_fields = ('image_tag', 'last_login', 'date_joined','email')
 
 
 class PostsAdmin(admin.ModelAdmin):
@@ -261,9 +262,10 @@ class PostsAdmin(admin.ModelAdmin):
 
 class PhotosAdmin(admin.ModelAdmin):
     fields = ('post', 'photo')
+    admin_thumbnail = AdminThumbnail(image_field='photo_thumbnail',template='thumbnail.html')
     list_per_page = 30
     search_fields = ('post__user__username', 'post__user__nickname', 'post__user__email')
-    list_display = ('post', 'image_tag')
+    list_display = ('post', 'admin_thumbnail')
     raw_id_fields = ('post',)
     readonly_fields = ('image_tag',)
 

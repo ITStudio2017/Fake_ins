@@ -29,6 +29,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+FILE_UPLOAD_MAX_MEMORY_SIZE = 50*1024*1024
 
 # Application definition
 
@@ -40,10 +41,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
-    'rest_framework',  
+    'rest_framework',
     'django_filters',
     'rest_framework.authtoken',
     'captcha',
+    'imagekit',
 
     'ins_api',
     'users',
@@ -90,7 +92,7 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 5,
-    
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
@@ -195,7 +197,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -211,9 +213,8 @@ MEDIA_URL = '/media/'
 
 
 EMAIL_USE_SSL = True
-EMAIL_HOST = 'smtp.163.com'  
+EMAIL_HOST = 'smtp.163.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = 'alex_noreply@163.com' 
-EMAIL_HOST_PASSWORD = 'IdOoN4KyWxpt'  
+EMAIL_HOST_USER = 'alex_noreply@163.com'
+EMAIL_HOST_PASSWORD = 'IdOoN4KyWxpt'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-

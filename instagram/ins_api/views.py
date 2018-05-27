@@ -60,7 +60,6 @@ def apiApplication(request):
 
 class ShortPost(APIView):
 	def get(self, request, pk, format=None):
-		photoList = Photos.objects.filter(post=pk).order_by('-time')
 		post = Posts.objects.get(pk=pk)
 		user = User.objects.get(id=post.user.id)
 		if LikesLink.objects.filter(user=request.user,post=post):
@@ -71,19 +70,24 @@ class ShortPost(APIView):
 			is_shoucang = True
 		else:
 			is_shoucang = False
-		briefPost = BriefPost(username=user.username,
-							  introduction=post.introduction,
-							  Pub_time=post.Pub_time,
-							  likes_num=post.likes_num,
-							  com_num=post.com_num,
-							  profile_picture=user.profile_picture,
-							  photo_0=post.photo_0,
-							  is_dianzan=is_dianzan,
-							  is_shoucang=is_shoucang,
-							  post_id=post.id,
-							  user_id=user.id
-							 )
-		serializer = BriefPostSerializer(briefPost)
+		if len(Photos.objects.filter(post=post)) > 1:
+			is_many = True
+		else:
+			is_many = False
+		serializer = BriefPostSerializer({'username':user.username,
+							  			  'introduction':post.introduction,
+							  			  'Pub_time':post.Pub_time,
+							  			  'likes_num':post.likes_num,
+							  			  'com_num':post.com_num,
+							  			  'profile_picture':user.profile_picture,
+							  			  'photo_0':post.photo_0,
+							  			  'photo_0_thumbnail':post.photo_0_thumbnail,
+							  			  'is_dianzan':is_dianzan,
+							  			  'is_shoucang':is_shoucang,
+							  			  'post_id':post.id,
+							  			  'user_id':user.id,
+							  			  'is_many':is_many,
+							  			  })
 		return Response(serializer.data)
 
 class UserDetail(APIView):
@@ -137,14 +141,18 @@ class UserDetail(APIView):
 
 class PhotoList(APIView):
 	def get(self, request):
-		try:
-			postid = request.GET['postid']
-			photoList = Photos.objects.filter(post=postid).order_by('-time')
-			photo_num = len(photoList)
-			serializer = PhotoSerializer(photoList, many=True)
-			return Response({'photo_num':photo_num,'result':serializer.data})
-		except:
-			return Response({'status':'UnknownError'})
+		postid = request.GET['postid']
+		photoList = Photos.objects.filter(post=postid).order_by('-time')
+		photos = []
+		for photo in photoList:
+			photos.append({'id':photo.id,
+						   'post':photo.post.id,
+						   'photo':photo.photo,
+						   'photo_thumbnail':photo.photo_thumbnail,
+						   })
+		photo_num = len(photoList)
+		serializer = PhotoSerializer(photos, many=True)
+		return Response({'photo_num':photo_num,'result':serializer.data})
 
 class UserRegister(APIView):
 	"""2"""
@@ -277,18 +285,24 @@ class PostsAPI(generics.ListCreateAPIView):
 						is_shoucang = True
 					else:
 						is_shoucang = False
-					posts.append(BriefPost(post_id=post.id,
-										   user_id=post.user.id,
-										   username=post.user.username,
-										   profile_picture=post.user.profile_picture,
-										   introduction=post.introduction,
-										   Pub_time=post.Pub_time,
-										   likes_num=post.likes_num,
-										   com_num=post.com_num,
-										   photo_0=post.photo_0,
-										   is_dianzan=is_dianzan,
-										   is_shoucang=is_shoucang
-										   ))
+					if len(Photos.objects.filter(post=post)) > 1:
+						is_many = True
+					else:
+						is_many = False
+					posts.append({'post_id':post.id,
+								  'user_id':post.user.id,
+								  'username':post.user.username,
+								  'profile_picture':post.user.profile_picture,
+								  'introduction':post.introduction,
+								  'Pub_time':post.Pub_time,
+								  'likes_num':post.likes_num,
+								  'com_num':post.com_num,
+								  'photo_0':post.photo_0,
+								  'photo_0_thumbnail':post.photo_0_thumbnail,
+								  'is_dianzan':is_dianzan,
+								  'is_shoucang':is_shoucang,
+								  'is_many':is_many,
+										   })
 			serializer = BriefPostSerializer(posts,many=True)
 			return Response({'status':'Success','result':serializer.data})
 		except:
@@ -370,19 +384,24 @@ class UserPost(APIView):
 				else:
 					is_shoucang = False
 				photo_num = len(Photos.objects.filter(post=post))
-				posts.append(BriefPost(post_id=post.id,
-										   user_id=post.user.id,
-										   username=post.user.username,
-										   profile_picture=post.user.profile_picture,
-										   introduction=post.introduction,
-										   Pub_time=post.Pub_time,
-										   likes_num=post.likes_num,
-										   com_num=post.com_num,
-										   photo_0=post.photo_0,
-										   is_dianzan=is_dianzan,
-										   is_shoucang=is_shoucang,
-										   photo_num=photo_num
-										   ))
+				if photo_num > 1:
+					is_many = True
+				else:
+					is_many = False
+				posts.append({'post_id':post.id,
+							  'user_id':post.user.id,
+							  'username':post.user.username,
+							  'profile_picture':post.user.profile_picture,
+							  'introduction':post.introduction,
+							  'Pub_time':post.Pub_time,
+							  'likes_num':post.likes_num,
+							  'com_num':post.com_num,
+							  'photo_0':post.photo_0,
+							  'photo_0_thumbnail':post.photo_0_thumbnail,
+							  'is_dianzan':is_dianzan,
+							  'is_shoucang':is_shoucang,
+							  'is_many':is_many,
+							  })
 			serializer = BriefPostSerializer(posts, many=True)
 
 			return Response({'status':'Success','result':serializer.data})
@@ -557,18 +576,24 @@ class Search(APIView):
 						is_shoucang = True
 					else:
 						is_shoucang = False
-					posts.append(BriefPost(username=post.user.username,
-										   profile_picture=post.user.profile_picture,
-										   introduction=post.introduction,
-										   Pub_time=post.Pub_time,
-										   likes_num=post.likes_num,
-										   com_num=post.com_num,
-										   photo_0=post.photo_0,
-										   is_shoucang=is_shoucang,
-										   is_dianzan=is_dianzan,
-										   post_id=post.id,
-										   user_id=post.user.id
-										   ))
+					if len(Photos.objects.filter(post=post)) > 1:
+						is_many = True
+					else:
+						is_many = False
+					posts.append({'username':post.user.username,
+								  'profile_picture':post.user.profile_picture,
+								  'introduction':post.introduction,
+								  'Pub_time':post.Pub_time,
+								  'likes_num':post.likes_num,
+								  'com_num':post.com_num,
+								  'photo_0':post.photo_0,
+								  'photo_0_thumbnail':post.photo_0_thumbnail,
+								  'is_shoucang':is_shoucang,
+								  'is_dianzan':is_dianzan,
+								  'post_id':post.id,
+								  'user_id':post.user.id,
+								  'is_many':is_many,
+								  })
 				serializer= BriefPostSerializer(posts, many=True)
 			if not serializer.data:
 				return Response({'status':'null'})
@@ -612,20 +637,25 @@ class LikeList(APIView):
 					is_shoucang = True
 				else:
 					is_shoucang = False
-				photo_num = len(Photos.objects.filter(post=post))
-				posts.append(BriefPost(username=post.user.username,
-									   profile_picture=post.user.profile_picture,
-									   introduction=post.introduction,
-									   Pub_time=post.Pub_time,
-									   likes_num=post.likes_num,
-									   com_num=post.com_num,
-									   photo_0=post.photo_0,
-									   is_dianzan=is_dianzan,
-									   is_shoucang=is_shoucang,
-									   post_id=post.id,
-									   user_id=post.user.id,
-									   photo_num=photo_num
-									   ))
+				if len(Photos.objects.filter(post=post)) > 1:
+					is_many = True
+				else:
+					is_many = False
+
+				posts.append({'username':post.user.username,
+							  'profile_picture':post.user.profile_picture,
+							  'introduction':post.introduction,
+							  'Pub_time':post.Pub_time,
+							  'likes_num':post.likes_num,
+							  'com_num':post.com_num,
+							  'photo_0':post.photo_0,
+							  'photo_0_thumbnail':post.photo_0_thumbnail,
+							  'is_dianzan':is_dianzan,
+							  'is_shoucang':is_shoucang,
+							  'post_id':post.id,
+							  'user_id':post.user.id,
+							  'is_many':is_many
+							  })
 			serializer = BriefPostSerializer(posts,many=True)
 			return Response({'status':'Success','result':serializer.data})
 		except:
@@ -679,17 +709,31 @@ class PostsLinkApi(APIView):
 			postList = []
 			result = []
 			for post in posts:
-				photo_num = len(Photos.objects.filter(post=post))
-				briefPost = BriefPostTest(introduction=post.introduction,
-										  Pub_time=post.Pub_time,
-										  likes_num=post.likes_num,
-										  com_num=post.com_num,
-										  photo_0=post.photo_0,
-										  photo_num=photo_num
-										  )
-				serializer = BriefPostTestSerializer(briefPost.kwargs)
-				result.append(serializer.data)
-			return Response({'status':'Success','result':result})
+				if LikesLink.objects.filter(post=post,user=user):
+					is_dianzan = True
+				else:
+					is_dianzan = False
+				if len(Photos.objects.filter(post=post)) > 1:
+					is_many = True
+				else:
+					is_many = False
+				postList.append({'username':post.user.username,
+								 'introduction':post.introduction,
+								 'Pub_time':post.Pub_time,
+								 'profile_picture':post.user.profile_picture,
+								 'likes_num':post.likes_num,
+								 'com_num':post.com_num,
+								 'photo_0':post.photo_0,
+								 'photo_0_thumbnail':post.photo_0_thumbnail,
+								 'is_shoucang':True,
+								 'is_dianzan':is_dianzan,
+								 'is_many':is_many,
+								 'post_id':post.id,
+								 'user_id':post.user.id,
+					})
+
+			serializer = BriefPostSerializer(postList,many=True)
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -804,8 +848,9 @@ class FollowMessage(APIView):
 											   post_id=like.post.id,
 											   introduction=like.post.introduction,
 											   photo_0=like.post.photo_0,
+											   photo_0_thumbnail=like.post.photo_0_thumbnail,
 											   profile_picture=like.user.profile_picture,
-											   time=like.time
+											   time=like.time,
 											   ))
 
 			serializer = BriefLikesLinkSerializer(likeList,many=True)
@@ -899,6 +944,7 @@ class MessageList(APIView):
 									  time=message.time,
 									  post_id=message.post.id,
 									  photo_0=message.post.photo_0,
+									  photo_0_thumbnail=message.post.photo_0_thumbnail,
 									  )
 					serializer = Message_2Serializer(message.kwargs)
 					result.append(serializer.data)
@@ -910,6 +956,7 @@ class MessageList(APIView):
 									  time=message.time,
 									  post_id=message.post.id,
 									  photo_0=message.post.photo_0,
+									  photo_0_thumbnail=message.post.photo_0_thumbnail,
 									  content=message.content
 									  )
 					serializer = Message_3Serializer(message.kwargs)

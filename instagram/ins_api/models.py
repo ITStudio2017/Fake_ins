@@ -3,7 +3,8 @@ from users.models import User
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext_lazy as _
 from users.storage import ImageStorage
-
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 class Posts(models.Model):
     """动态"""
@@ -12,6 +13,9 @@ class Posts(models.Model):
     Pub_time = models.DateTimeField(auto_now_add=True, verbose_name="发表时间")
     likes_num = models.PositiveIntegerField(default=0, verbose_name="点赞数")
     photo_0 = models.ImageField(max_length=100,verbose_name="图片", upload_to='photos/',storage=ImageStorage(),default="")
+    photo_0_thumbnail = ImageSpecField(source='photo_0',
+                                       format='JPEG',
+                                       options={'quality':60})
     com_num = models.PositiveIntegerField(default=0, verbose_name="评论数")
     def likeNumIncrease(self):
         self.likes_num += 1
@@ -42,6 +46,10 @@ class Photos(models.Model):
     """动态的图片"""
     post = models.ForeignKey(Posts, verbose_name="动态", on_delete=models.CASCADE)
     photo = models.ImageField(max_length=100, verbose_name="图片", upload_to='photos/',storage=ImageStorage())
+    photo_thumbnail = ImageSpecField(source='photo',
+                                     format='JPEG',
+                                     options={'quality':60}
+                                     )
     time = models.DateTimeField(auto_now_add=True, verbose_name="时间")
 
     def image_tag(self):

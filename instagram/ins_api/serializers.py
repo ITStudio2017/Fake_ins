@@ -60,26 +60,30 @@ class BriefPostTest(object):
 
 class BriefPostTestSerializer(serializers.Serializer):
 	introduction = serializers.CharField()
-	Pub_time = serializers.DateTimeField()
+	Pub_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	likes_num = serializers.IntegerField()
 	com_num = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
-	photo_num = serializers.IntegerField()
+	photo_0_thumbnail = serializers.ImageField()
+	is_many = serializers.BooleanField()
 		
 
 class BriefPostSerializer(serializers.Serializer):
 	username = serializers.CharField(max_length=15)
 	introduction = serializers.CharField(max_length=150)
-	Pub_time = serializers.DateTimeField()
+	Pub_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	profile_picture = serializers.ImageField()
 	likes_num = serializers.IntegerField()
 	com_num = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
+	photo_0_thumbnail = serializers.ImageField()
 	is_shoucang = serializers.BooleanField()
 	is_dianzan = serializers.BooleanField()
+	is_many = serializers.BooleanField()
 	post_id = serializers.IntegerField()
 	user_id = serializers.IntegerField()
-	photo_num = serializers.IntegerField()
+
+	
 		
 
 class PostSerializer(serializers.ModelSerializer): 
@@ -89,10 +93,11 @@ class PostSerializer(serializers.ModelSerializer):
 				  'Pub_time', 'likes_num',
 				  'com_num','photo_0')
 
-class PhotoSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Photos
-		fields = ('id', 'post', 'photo')
+class PhotoSerializer(serializers.Serializer):
+	photo_thumbnail = serializers.ImageField()
+	id = serializers.IntegerField()
+	post = serializers.IntegerField()
+	photo = serializers.ImageField()
 
 
 
@@ -109,12 +114,13 @@ class LikesLinkSerializer(serializers.ModelSerializer):
 
 class BriefLikesLink(object):
 	"""docstring for BriefLikesLink"""
-	def __init__(self, username, user_id, post_id, introduction, photo_0, profile_picture, time):
+	def __init__(self, username, user_id, post_id, introduction, photo_0, profile_picture, time, photo_0_thumbnail):
 		self.username = username
 		self.user_id = user_id
 		self.post_id = post_id
 		self.introduction = introduction
 		self.photo_0 = photo_0
+		self.photo_0_thumbnail = photo_0_thumbnail
 		self.profile_picture = profile_picture
 		self.time = time
 
@@ -125,8 +131,9 @@ class BriefLikesLinkSerializer(serializers.Serializer):
 	post_id = serializers.IntegerField()
 	introduction = serializers.CharField()
 	photo_0 = serializers.ImageField()
+	photo_0_thumbnail = serializers.ImageField()
 	profile_picture = serializers.ImageField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 
 
 class Message(object):
@@ -140,7 +147,7 @@ class Message_1Serializer(serializers.Serializer):
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
 	messageType = serializers.IntegerField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	is_guanzhu = serializers.BooleanField()
 
 class Message_2Serializer(serializers.Serializer):
@@ -148,16 +155,18 @@ class Message_2Serializer(serializers.Serializer):
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
 	messageType = serializers.IntegerField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	post_id = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
+	photo_0_thumbnail = serializers.ImageField()
 
 class Message_3Serializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
 	messageType = serializers.IntegerField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	post_id = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
+	photo_0_thumbnail = serializers.ImageField()
 	content = serializers.CharField()
