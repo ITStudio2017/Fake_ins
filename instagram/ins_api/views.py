@@ -384,7 +384,7 @@ class UserPost(APIView):
 				else:
 					is_shoucang = False
 				photo_num = len(Photos.objects.filter(post=post))
-				if photo_num == 1:
+				if photo_num > 1:
 					is_many = True
 				else:
 					is_many = False
