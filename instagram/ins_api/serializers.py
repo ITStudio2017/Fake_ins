@@ -59,7 +59,7 @@ class BriefPostTest(object):
 
 class BriefPostTestSerializer(serializers.Serializer):
 	introduction = serializers.CharField()
-	Pub_time = serializers.DateTimeField()
+	Pub_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	likes_num = serializers.IntegerField()
 	com_num = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
@@ -70,7 +70,7 @@ class BriefPostTestSerializer(serializers.Serializer):
 class BriefPostSerializer(serializers.Serializer):
 	username = serializers.CharField(max_length=15)
 	introduction = serializers.CharField(max_length=150)
-	Pub_time = serializers.DateTimeField()
+	Pub_time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	profile_picture = serializers.ImageField()
 	likes_num = serializers.IntegerField()
 	com_num = serializers.IntegerField()
@@ -132,7 +132,7 @@ class BriefLikesLinkSerializer(serializers.Serializer):
 	photo_0 = serializers.ImageField()
 	photo_0_thumbnail = serializers.ImageField()
 	profile_picture = serializers.ImageField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 
 
 class Message(object):
@@ -146,7 +146,7 @@ class Message_1Serializer(serializers.Serializer):
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
 	messageType = serializers.IntegerField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	is_guanzhu = serializers.BooleanField()
 
 class Message_2Serializer(serializers.Serializer):
@@ -154,7 +154,7 @@ class Message_2Serializer(serializers.Serializer):
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
 	messageType = serializers.IntegerField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	post_id = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
 	photo_0_thumbnail = serializers.ImageField()
@@ -164,7 +164,7 @@ class Message_3Serializer(serializers.Serializer):
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
 	messageType = serializers.IntegerField()
-	time = serializers.DateTimeField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	post_id = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
 	photo_0_thumbnail = serializers.ImageField()
