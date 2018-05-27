@@ -709,21 +709,31 @@ class PostsLinkApi(APIView):
 			postList = []
 			result = []
 			for post in posts:
+				if LikesLink.objects.filter(post=post,user=user):
+					is_dianzan = True
+				else:
+					is_dianzan = False
 				if len(Photos.objects.filter(post=post)) > 1:
 					is_many = True
 				else:
 					is_many = False
-				briefPost = BriefPostTest(introduction=post.introduction,
-										  Pub_time=post.Pub_time,
-										  likes_num=post.likes_num,
-										  com_num=post.com_num,
-										  photo_0=post.photo_0,
-										  is_many=is_many,
-										  photo_0_thumbnail=post.photo_0_thumbnail,
-										  )
-				serializer = BriefPostTestSerializer(briefPost.kwargs)
-				result.append(serializer.data)
-			return Response({'status':'Success','result':result})
+				postList.append({'username':post.user.username,
+								 'introduction':post.introduction,
+								 'Pub_time':post.Pub_time,
+								 'profile_picture':post.user.profile_picture,
+								 'likes_num':post.likes_num,
+								 'com_num':post.com_num,
+								 'photo_0':post.photo_0,
+								 'photo_0_thumbnail':post.photo_0_thumbnail,
+								 'is_shoucang':True,
+								 'is_dianzan':is_dianzan,
+								 'is_many':is_many,
+								 'post_id':post.id,
+								 'user_id':post.user.id,
+					})
+
+			serializer = BriefPostSerializer(postList,many=True)
+			return Response({'status':'Success','result':serializer.data})
 		except:
 			return Response({'status':'UnknownError'})
 
