@@ -13,9 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
 
 class BriefUser(object):
 	"""docstring for BriefUser"""
-	def __init__(self, user_id, username, gender, birthday, following_num, followed_num, profile_picture, is_guanzhu):
+	def __init__(self, user_id, username, nickname, gender, birthday, following_num, followed_num, profile_picture, is_guanzhu):
 		self.user_id = user_id
 		self.username = username
+		self.nickname = nickname
 		self.gender = gender
 		self.birthday = birthday
 		self.following_num = following_num

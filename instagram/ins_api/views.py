@@ -741,6 +741,7 @@ class FollowPerson(APIView):
 					is_guanzhu = False
 				users.append(BriefUser(user_id=user_in.id,
 									   username=user_in.username,
+				                       nickname=user_in.nickname,
 									   gender=user_in.gender,
 									   birthday=user_in.birthday,
 									   following_num=user_in.following_num,
@@ -754,6 +755,7 @@ class FollowPerson(APIView):
 				return Response({'status':'null'})
 		except:
 			return Response({'status':'UnknownError'})
+
 
 class ToPerson(APIView):
 	"""15"""
@@ -774,6 +776,7 @@ class ToPerson(APIView):
 					is_guanzhu = False
 				users.append(BriefUser(user_id=user_in.id,
 									   username=user_in.username,
+									   nickname=user_in.nickname,
 									   gender=user_in.gender,
 									   birthday=user_in.birthday,
 									   following_num=user_in.following_num,
