@@ -24,9 +24,11 @@ class BriefUser(object):
 		self.profile_picture = profile_picture
 		self.is_guanzhu = is_guanzhu
 
+
 class BriefUserSerializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	username = serializers.CharField()
+	nickname = serializers.CharField()
 	gender = serializers.IntegerField()
 	birthday = serializers.CharField()
 	following_num = serializers.IntegerField()
