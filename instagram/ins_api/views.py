@@ -539,6 +539,7 @@ class Search(APIView):
 						is_guanzhu = False
 					userList.append(BriefUser(user_id=user.id,
 											      username=user.username,
+											      nickname=user.nickname,
 												  gender=user.gender,
 												  birthday=user.birthday,
 												  following_num=user.following_num,
