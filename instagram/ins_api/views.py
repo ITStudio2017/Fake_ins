@@ -170,8 +170,9 @@ class UserRegister(APIView):
 				User.objects.get(email=email)
 				return Response({'status':'EmailError'})
 			except:
-				password = make_password(password)
 				try:
+					password = make_password(password)
+			
 					user = User.objects.create(username=username,email=email,password=password,nickname=nickname)
 					opts = {
 					'user': user,
@@ -186,6 +187,7 @@ class UserRegister(APIView):
 					return Response({'status':'Success'})
 				except:
 					return Response({'status':'UnknownError'})
+				
 
 class Accounts(APIView):
 	"""3"""
