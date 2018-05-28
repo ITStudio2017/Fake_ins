@@ -130,7 +130,7 @@ def send_activation_email(
         subject = ''.join(subject.splitlines())
         body = render_to_string(email_template, context)
 
-        email_message = EmailMultiAlternatives(subject, body, from_email, [user.email])
+        email_message = EmailMultiAlternatives("Account activation", body, from_email, [user.email])
         if html_email_template is not None:
             html_email = render_to_string(html_email_template, context)
             email_message.attach_alternative(html_email, 'text/html')
