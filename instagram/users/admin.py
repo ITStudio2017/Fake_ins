@@ -218,7 +218,7 @@ class UserAdmin(BaseUserAdmin):
     add_form = UserCreationForm
     fieldsets = (
         (None, {
-            'fields': ('email', 'username', 'is_active')
+            'fields': ('email', 'username', 'is_active','password')
         }),
         (_('个人信息'), {
             'classes': ('wide',),
