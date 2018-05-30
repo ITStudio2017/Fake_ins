@@ -482,13 +482,10 @@ class CommentsAPI(APIView):
 	"""24"""
 	permission_classes = (IsAuthenticated,)
 	def get(self, request, format=None):
-		try:
-			post = request.GET['post_id']
-			commentList = Comments.objects.filter(post=post).order_by('-time')
-			serializer = CommentSerializer(commentList, many=True)
-			return Response(serializer.data)
-		except:
-			return Response({'status':'UnknownError'})
+		post = request.GET['post_id']
+		commentList = Comments.objects.filter(post=post).order_by('-time')
+		serializer = CommentSerializer(commentList, many=True)
+		return Response(serializer.data)
 
 	def post(self, request,format=None):
 		data = request.data
