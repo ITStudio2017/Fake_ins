@@ -485,7 +485,16 @@ class CommentsAPI(APIView):
 		try:
 			post = request.GET['post_id']
 			commentList = Comments.objects.filter(post=post).order_by('-time')
-			serializer = CommentSerializer(commentList, many=True)
+			comments = []
+			for comment in commentList:
+				comments.append({'user_id':comment.user.id,
+								 'username':comment.user.username,
+								 'profile_picture':comment.user.profile_picture,
+								 'post_id':comment.post.id,
+								 'content':comment.content,
+								 'time':comment.time,
+								 })
+			serializer = CommentSerializer(comments, many=True)
 			return Response(serializer.data)
 		except:
 			return Response({'status':'UnknownError'})

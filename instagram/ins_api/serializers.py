@@ -103,11 +103,15 @@ class PhotoSerializer(serializers.Serializer):
 
 
 
-class CommentSerializer(serializers.ModelSerializer):
-	"""docstring for CommentSerializer"""
-	class Meta():
-		model = Comments
-		fields = ('id','user','post','content','time')
+class CommentSerializer(serializers.Serializer):
+	user_id = serializers.IntegerField()
+	username = serializers.CharField()
+	profile_picture = serializers.ImageField()
+	post_id = serializers.IntegerField()
+	content = serializers.CharField()
+	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
+
+	
 
 class LikesLinkSerializer(serializers.ModelSerializer):
 	class Meta:
