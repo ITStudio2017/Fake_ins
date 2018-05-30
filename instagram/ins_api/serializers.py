@@ -107,7 +107,7 @@ class CommentSerializer(serializers.ModelSerializer):
 	"""docstring for CommentSerializer"""
 	class Meta():
 		model = Comments
-		fields = ('id','user','post','content','Pub_time')
+		fields = ('id','user','post','content','time')
 
 class LikesLinkSerializer(serializers.ModelSerializer):
 	class Meta:
