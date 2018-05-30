@@ -847,28 +847,28 @@ class ToPerson(APIView):
 class FollowMessage(APIView):
 	"""17"""
 	def get(self, request, format=None):
-		try:
-			followList = FollowsLink.objects.filter(From=request.user)
-			ToList = []
-			for follow in followList:
-				ToList.append(follow.To.id)
-			likes = LikesLink.objects.filter(user__in=ToList).order_by('-time')
-			likeList = []
-			for like in likes:
-				likeList.append(BriefLikesLink(username=like.user.username,
-											   user_id=like.user.id,
-											   post_id=like.post.id,
-											   introduction=like.post.introduction,
-											   photo_0=like.post.photo_0,
-											   photo_0_thumbnail=like.post.photo_0_thumbnail,
-											   profile_picture=like.user.profile_picture,
-											   time=like.time,
-											   ))
+		followList = FollowsLink.objects.filter(From=request.user)
+		ToList = []
+		for follow in followList:
+			ToList.append(follow.To.id)
+		likes = LikesLink.objects.filter(user__in=ToList).order_by('-time')
+		likeList = []
+		for like in likes:
+			likeList.append(BriefLikesLink(username=like.user.username,
+										   user_id=like.user.id,
+										   post_id=like.post.id,
+										   post_user_id=like.post.user.id,
+										   introduction=like.post.introduction,
+										   photo_0=like.post.photo_0,
+										   photo_0_thumbnail=like.post.photo_0_thumbnail,
+										   profile_picture=like.user.profile_picture,
+										   time=like.time,
+										   ))
 
-			serializer = BriefLikesLinkSerializer(likeList,many=True)
-			return Response({'status':'Success','result':serializer.data})
-		except:
-			return Response({'status':'UnknownError'})
+		serializer = BriefLikesLinkSerializer(likeList,many=True)
+		return Response({'status':'Success','result':serializer.data})
+		# except:
+		# 	return Response({'status':'UnknownError'})
 
 class Follow(APIView):
 	permission_classes = (IsAuthenticated,)
@@ -954,6 +954,7 @@ class MessageList(APIView):
 								  messageType=2,
 								  time=message.time,
 								  post_id=message.post.id,
+								  post_user_id=message.post.user.id,
 								  photo_0=message.post.photo_0,
 								  photo_0_thumbnail=message.post.photo_0_thumbnail,
 								  )
@@ -966,6 +967,7 @@ class MessageList(APIView):
 								  messageType=3,
 								  time=message.time,
 								  post_id=message.post.id,
+								  post_user_id=message.post.user.id,
 								  photo_0=message.post.photo_0,
 								  photo_0_thumbnail=message.post.photo_0_thumbnail,
 								  content=message.content

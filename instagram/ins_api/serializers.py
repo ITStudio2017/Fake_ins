@@ -120,10 +120,11 @@ class LikesLinkSerializer(serializers.ModelSerializer):
 
 class BriefLikesLink(object):
 	"""docstring for BriefLikesLink"""
-	def __init__(self, username, user_id, post_id, introduction, photo_0, profile_picture, time, photo_0_thumbnail):
+	def __init__(self, username, user_id, post_id, introduction, photo_0, profile_picture, time, photo_0_thumbnail, post_user_id):
 		self.username = username
 		self.user_id = user_id
 		self.post_id = post_id
+		self.post_user_id = post_user_id
 		self.introduction = introduction
 		self.photo_0 = photo_0
 		self.photo_0_thumbnail = photo_0_thumbnail
@@ -135,11 +136,13 @@ class BriefLikesLinkSerializer(serializers.Serializer):
 	username = serializers.CharField()
 	user_id = serializers.IntegerField()
 	post_id = serializers.IntegerField()
+	post_user_id = serializers.IntegerField()
 	introduction = serializers.CharField()
 	photo_0 = serializers.ImageField()
 	photo_0_thumbnail = serializers.ImageField()
 	profile_picture = serializers.ImageField()
 	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
+
 
 
 class Message(object):
@@ -163,6 +166,7 @@ class Message_2Serializer(serializers.Serializer):
 	messageType = serializers.IntegerField()
 	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	post_id = serializers.IntegerField()
+	post_user_id = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
 	photo_0_thumbnail = serializers.ImageField()
 
@@ -173,6 +177,7 @@ class Message_3Serializer(serializers.Serializer):
 	messageType = serializers.IntegerField()
 	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 	post_id = serializers.IntegerField()
+	post_user_id = serializers.IntegerField()
 	photo_0 = serializers.ImageField()
 	photo_0_thumbnail = serializers.ImageField()
 	content = serializers.CharField()
