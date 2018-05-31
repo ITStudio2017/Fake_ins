@@ -85,6 +85,7 @@ class ShortPost(APIView):
 							  			  'is_dianzan':is_dianzan,
 							  			  'is_shoucang':is_shoucang,
 							  			  'post_id':post.id,
+							  			  'post_user_id':post.user.id,
 							  			  'user_id':user.id,
 							  			  'is_many':is_many,
 							  			  })
@@ -292,6 +293,7 @@ class PostsAPI(generics.ListCreateAPIView):
 					else:
 						is_many = False
 					posts.append({'post_id':post.id,
+								  'post_user_id':post.user.id,
 								  'user_id':post.user.id,
 								  'username':post.user.username,
 								  'profile_picture':post.user.profile_picture,
@@ -391,6 +393,7 @@ class UserPost(APIView):
 				else:
 					is_many = False
 				posts.append({'post_id':post.id,
+							  'post_user_id':post.user.id,
 							  'user_id':post.user.id,
 							  'username':post.user.username,
 							  'profile_picture':post.user.profile_picture,
@@ -603,6 +606,7 @@ class Search(APIView):
 								  'is_shoucang':is_shoucang,
 								  'is_dianzan':is_dianzan,
 								  'post_id':post.id,
+								  'post_user_id':post.user.id,
 								  'user_id':post.user.id,
 								  'is_many':is_many,
 								  })
@@ -665,6 +669,7 @@ class LikeList(APIView):
 							  'is_dianzan':is_dianzan,
 							  'is_shoucang':is_shoucang,
 							  'post_id':post.id,
+							  'post_user_id':post.user.id,
 							  'user_id':post.user.id,
 							  'is_many':is_many
 							  })
@@ -741,6 +746,7 @@ class PostsLinkApi(APIView):
 								 'is_dianzan':is_dianzan,
 								 'is_many':is_many,
 								 'post_id':post.id,
+								 'post_user_id':post.user.id,
 								 'user_id':post.user.id,
 					})
 

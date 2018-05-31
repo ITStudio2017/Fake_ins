@@ -83,6 +83,7 @@ class BriefPostSerializer(serializers.Serializer):
 	is_dianzan = serializers.BooleanField()
 	is_many = serializers.BooleanField()
 	post_id = serializers.IntegerField()
+	post_user_id = serializers.IntegerField()
 	user_id = serializers.IntegerField()
 
 	
