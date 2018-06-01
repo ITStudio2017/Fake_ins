@@ -108,7 +108,7 @@ class CommentSerializer(serializers.Serializer):
 	user_id = serializers.IntegerField()
 	username = serializers.CharField()
 	profile_picture = serializers.ImageField()
-	post_id = serializers.IntegerField()
+	comment_id = serializers.IntegerField()
 	content = serializers.CharField()
 	time = serializers.DateTimeField(format='%Y-%m-%d %H:%M:%S')
 

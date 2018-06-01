@@ -493,7 +493,7 @@ class CommentsAPI(APIView):
 				comments.append({'user_id':comment.user.id,
 								 'username':comment.user.username,
 								 'profile_picture':comment.user.profile_picture,
-								 'post_id':comment.post.id,
+								 'comment_id':comment.id,
 								 'content':comment.content,
 								 'time':comment.time,
 								 })
