@@ -279,6 +279,20 @@ class PostsAPI(generics.ListCreateAPIView):
 				if not postIDList:
 					return Response({'status':'null'})
 				postList = Posts.objects.filter(id__in=postIDList).order_by('-Pub_time')
+			photos = []
+			photoList = []
+			for post in postList:
+				album = Photos.objects.filter(post=post)
+				for photo in album:
+					photos.append({'id':photo.id,
+								   'photo':photo.photo,
+								   'photo_thumbnail':photo.photo_thumbnail,
+								   'post':photo.post.id,
+								   })
+				serializer = PhotoSerializer(photos, many=True)
+				photoList.append(serializer.data)
+				photos = []
+
 			for post in postList:
 					if LikesLink.objects.filter(user=request.user,post=post):
 						is_dianzan = True
@@ -308,7 +322,7 @@ class PostsAPI(generics.ListCreateAPIView):
 								  'is_many':is_many,
 										   })
 			serializer = BriefPostSerializer(posts,many=True)
-			return Response({'status':'Success','result':serializer.data})
+			return Response({'status':'Success','result':serializer.data,'photoList':photoList})
 		except:
 			return Response({'status':'UnknownError'})
 
