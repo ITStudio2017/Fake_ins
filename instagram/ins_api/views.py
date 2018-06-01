@@ -777,7 +777,8 @@ class PostsLinkApi(APIView):
 		data = request.data
 		try:
 			linkid = data['id']
-			like = PostsLink.objects.filter(id=linkid,user=request.user)
+			post=Posts.objects.get(id=linkid)
+			like = PostsLink.objects.filter(post=post,user=request.user)
 			like.delete()
 			return Response({'status':'Success'})
 		except:
