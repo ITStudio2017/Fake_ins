@@ -25,7 +25,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '_0b1&1t0k0nrd36hu=6w-&6r_-lobot-)6^=zsb7t@)@0@5hza'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
@@ -55,8 +55,8 @@ INSTALLED_APPS = [
 AUTH_USER_MODEL = 'users.User'
 
 MIDDLEWARE = [
-    #'ins_api.middlewore.TimeMiddleware',
-    #'ins_api.middlewore.ApiMiddleware',
+    'ins_api.middlewore.TimeMiddleware',
+    'ins_api.middlewore.ApiMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',

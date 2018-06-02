@@ -561,17 +561,17 @@ class Search(APIView):
 			searchType = data['searchType']
 			if searchType == 'user':
 				keyword = data['keyword']
-				users = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)| Q(nickname__contains=keyword)).order_by('-date_joined')
+				users = User.objects.filter(Q(username__contains=keyword)| Q(nickname__contains=keyword)).order_by('-date_joined')
 				userIDList = []
 				userList = []
 				for user in users:
 					userIDList.append(user.id)
 				if page == 1:
-					userIDList = userIDList[:5]
+					userIDList = userIDList[:10]
 				else:
 					user_id = int(request.GET['user_id'])
 					now = userIDList.index(user_id)
-					userIDList = userIDList[now+1:now+6]
+					userIDList = userIDList[now+1:now+11]
 				users = User.objects.filter(id__in=userIDList).order_by('-date_joined')
 				for user in users:
 					if FollowsLink.objects.filter(From=request.user,To=user):
