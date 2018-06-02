@@ -8,6 +8,7 @@ from .forms import UserChangeForm, UserCreationForm, UserActiveForm
 from ins_api.models import *
 from .utils import send_activation_email
 from imagekit.admin import AdminThumbnail
+from .models import User
 
 try:
     from django.contrib.admin.utils import model_ngettext
@@ -277,6 +278,27 @@ class CommentsAdmin(admin.ModelAdmin):
     search_fields = ('user__email', 'user__username', 'user__nickname', 'post__user__username',
                      'post__user__email', 'post__user__nickname')
     raw_id_fields = ('user', 'post')
+    actions = ['delete_selected']
+
+    def delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.post.comNumDrease()
+            obj.delete()
+    delete_selected.short_description = '删除所选的评论信息'
+
+    def save_model(self, request, obj, form, change):
+        """
+        Given a model instance save it to the database.
+        """
+        obj.post.comNumIncrease()
+        obj.save()
+
+    def delete_model(self, request, obj):
+        """
+        Given a model instance delete it from the database.
+        """
+        obj.post.comNumDrease()
+        obj.delete()
 
 
 def createCode():
@@ -312,6 +334,27 @@ class LikesLinkAdmin(admin.ModelAdmin):
                      'post__user__nickname')
     ordering = ('-post__Pub_time',)
     raw_id_fields = ('user', 'post')
+    actions = ['delete_selected']
+
+    def delete_selected(self, request, queryset):
+        for obj in queryset:
+            obj.post.likeNumDreacase()
+            obj.delete()
+    delete_selected.short_description = '删除所选的点赞信息'
+
+    def save_model(self, request, obj, form, change):
+        """
+        Given a model instance save it to the database.
+        """
+        obj.post.likeNumIncrease()
+        obj.save()
+
+    def delete_model(self, request, obj):
+        """
+        Given a model instance delete it from the database.
+        """
+        obj.post.likeNumDreacase()
+        obj.delete()
 
 
 class PostsLinkAdmin(admin.ModelAdmin):
@@ -324,12 +367,44 @@ class PostsLinkAdmin(admin.ModelAdmin):
     raw_id_fields = ('user', 'post')
 
 
+
 class FollowsLinkAdmin(admin.ModelAdmin):
     fields = ('From', 'To')
     list_display = ('From', 'To')
     search_fields = ('From__username', 'From__email', 'From__nickname', 'To__username', 'To__email', 'To__nickname')
     raw_id_fields = ('From', 'To')
     list_per_page = 30
+    actions = ['delete_selected']
+
+    def delete_selected(self, request, queryset):
+        for obj in queryset:
+            From = User.objects.get(id=obj.From.id)
+            To = User.objects.get(id=obj.To.id)
+            From.following_numDe()
+            To.followed_numDe()
+            obj.delete()
+    delete_selected.short_description = '删除所选的关注信息'
+
+    def save_model(self, request, obj, form, change):
+        """
+        Given a model instance save it to the database.
+        """
+        From = User.objects.get(id=obj.From.id)
+        To = User.objects.get(id=obj.To.id)
+        From.following_numIn()
+        To.followed_numIn()
+        obj.save()
+
+    def delete_model(self, request, obj):
+        """
+        Given a model instance delete it from the database.
+        """
+        From = User.objects.get(id=obj.From.id)
+        To = User.objects.get(id=obj.To.id)
+        From.following_numDe()
+        To.followed_numDe()
+        obj.delete()
+
 
 
 admin.site.site_header = 'INS管理页面'
