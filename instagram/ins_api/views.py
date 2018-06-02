@@ -392,6 +392,19 @@ class UserPost(APIView):
 			user = User.objects.get(pk=pk)
 			postList = Posts.objects.filter(user=user).order_by('-Pub_time')
 			posts = []
+			photos = []
+			photoList = []
+			for post in postList:
+				album = Photos.objects.filter(post=post)
+				for photo in album:
+					photos.append({'id':photo.id,
+								   'photo':photo.photo,
+								   'photo_thumbnail':photo.photo_thumbnail,
+								   'post':photo.post.id,
+								   })
+				serializer = PhotoSerializer(photos, many=True)
+				photoList.append(serializer.data)
+				photos = []
 			for post in postList:
 				if LikesLink.objects.filter(user=request.user,post=post):
 					is_dianzan = True
@@ -423,7 +436,7 @@ class UserPost(APIView):
 							  })
 			serializer = BriefPostSerializer(posts, many=True)
 
-			return Response({'status':'Success','result':serializer.data})
+			return Response({'status':'Success','result':serializer.data,'photoList':photoList})
 		except:
 			return Response({'status':'UnknownError'})
 
@@ -548,7 +561,7 @@ class Search(APIView):
 			searchType = data['searchType']
 			if searchType == 'user':
 				keyword = data['keyword']
-				users = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)).order_by('-date_joined')
+				users = User.objects.filter(Q(email__contains=keyword) | Q(username__contains=keyword)| Q(nickname__contains=keyword)).order_by('-date_joined')
 				userIDList = []
 				userList = []
 				for user in users:
@@ -566,14 +579,14 @@ class Search(APIView):
 					else:
 						is_guanzhu = False
 					userList.append(BriefUser(user_id=user.id,
-											      username=user.username,
-											      nickname=user.nickname,
-												  gender=user.gender,
-												  birthday=user.birthday,
-												  following_num=user.following_num,
-												  followed_num=user.followed_num,
-												  profile_picture=user.profile_picture,
-												  is_guanzhu=is_guanzhu
+											  username=user.username,
+											  nickname=user.nickname,
+											  gender=user.gender,
+											  birthday=user.birthday,
+											  following_num=user.following_num,
+											  followed_num=user.followed_num,
+											  profile_picture=user.profile_picture,
+											  is_guanzhu=is_guanzhu
 												  ))
 				serializer = BriefUserSerializer(userList, many=True)
 
